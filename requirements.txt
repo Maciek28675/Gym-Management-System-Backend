@@ -1,0 +1,6 @@
+Flask
+flask-login
+flask-sqlalchemy
+flask-jwt-extended
+flask-restful
+psycopg2-binary
