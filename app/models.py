@@ -11,7 +11,7 @@ class Employee(db.Model):
 
 
 class Customer(db.Model):
-    customer_id = db.Column()
+    customer_id = db.Column(db.Integer, primary_key=True)
     # subsrcitpion_id
     first_name = db.Column(db.String(50))
     last_name = db.Column(db.String(50))
@@ -20,6 +20,7 @@ class Customer(db.Model):
     sub_purchase_date = db.Column(Date)
 
 
+'''
 class Subscription(db.Model):
     pass
 
@@ -38,3 +39,4 @@ class Product(db.Model):
 
 class GymClass(db.Model):
     pass
+'''
