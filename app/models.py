@@ -10,9 +10,9 @@ class Employee(db.Model):
     Password = db.Column(db.String(255), nullable=False)
 
     # Relations
-    gym = db.relationship('Gym', back_populates='employees')  # Relationship with Gym
-    schedules = db.relationship('Schedule', back_populates='employee')  # Relationship with Schedule
-    gym_classes = db.relationship('GymClass', back_populates='employee')  # Relationship with GymClass
+    gym = db.relationship('Gym', back_populates='employees')
+    schedules = db.relationship('Schedule', back_populates='employee')
+    gym_classes = db.relationship('GymClass', back_populates='employee')
 
 
 class Customer(db.Model):
@@ -25,7 +25,7 @@ class Customer(db.Model):
     sub_purchase_date = db.Column(Date)
 
     # Relations
-    subscription = db.relationship('Subscription', back_populates='customers')  # Relationship with Subscription
+    subscription = db.relationship('Subscription', back_populates='customers')
 
 
 class Subscription(db.Model):
@@ -35,7 +35,7 @@ class Subscription(db.Model):
     period = db.Column(db.String(20), nullable=False)
 
     # Relations
-    customers = db.relationship('Customer', back_populates='subscription')  # Relationship with Customer
+    customers = db.relationship('Customer', back_populates='subscription')
 
 
 class Gym(db.Model):
@@ -44,10 +44,10 @@ class Gym(db.Model):
     address = db.Column(db.Text)
 
     # Relations
-    employees = db.relationship('Employee', back_populates='gym')  # Relationship with Employee
-    products = db.relationship('Product', back_populates='gym')  # Relationship with Product
-    schedules = db.relationship('Schedule', back_populates='gym')  # Relationship with Schedule
-    gym_classes = db.relationship('GymClass', back_populates='gym')  # Relationship with GymClass
+    employees = db.relationship('Employee', back_populates='gym')
+    products = db.relationship('Product', back_populates='gym')
+    schedules = db.relationship('Schedule', back_populates='gym')
+    gym_classes = db.relationship('GymClass', back_populates='gym')
 
 
 class Schedule(db.Model):
@@ -60,9 +60,9 @@ class Schedule(db.Model):
     end_time = db.Column(db.Time, nullable=False)
 
     # Relations
-    gym_class = db.relationship('GymClass', back_populates='schedules')  # Relationship with GymClass
-    gym = db.relationship('Gym', back_populates='schedules')  # Relationship with Gym
-    employee = db.relationship('Employee', back_populates='schedules')  # Relationship with Employee
+    gym_class = db.relationship('GymClass', back_populates='schedules')
+    gym = db.relationship('Gym', back_populates='schedules')
+    employee = db.relationship('Employee', back_populates='schedules')
 
 
 class Product(db.Model):
@@ -75,7 +75,7 @@ class Product(db.Model):
     total_revenue = db.Column(db.Numeric(12, 2))
 
     # Relations
-    gym = db.relationship('Gym', back_populates='products')  # Relationship with Gym
+    gym = db.relationship('Gym', back_populates='products')
 
 
 class GymClass(db.Model):
@@ -89,6 +89,6 @@ class GymClass(db.Model):
     signed_people = db.Column(db.Integer, nullable=False)
 
     # Relations
-    employee = db.relationship('Employee', back_populates='gym_classes')  # Relationship with Employee
-    gym = db.relationship('Gym', back_populates='gym_classes')  # Relationship with Gym
-    schedules = db.relationship('Schedule', back_populates='gym_class')  # Relationship with Schedule
+    employee = db.relationship('Employee', back_populates='gym_classes')
+    gym = db.relationship('Gym', back_populates='gym_classes')
+    schedules = db.relationship('Schedule', back_populates='gym_class')
