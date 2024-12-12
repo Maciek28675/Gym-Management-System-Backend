@@ -6,3 +6,4 @@ flask-restful
 psycopg2-binary
 python-dotenv
 flask-jwt-extended
+flask-bcrypt
