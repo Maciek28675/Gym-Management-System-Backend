@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 
 from dotenv import load_dotenv
@@ -41,4 +42,6 @@ def create_app():
 
     create_database(app)
 
+    migrate = Migrate(app, db)
+    
     return app
