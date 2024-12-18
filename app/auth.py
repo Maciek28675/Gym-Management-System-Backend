@@ -4,15 +4,16 @@ from flask_jwt_extended import create_access_token
 import bcrypt
 from .models import Employee
 from . import db
+from utils import role_required
 
 auth = Blueprint('auth', __name__)
 
 
 # TODO: dodać sprawdzanie poprawności danych
 # TODO: dodać usuwanie konta admina przy rejestracji pierwszego managera
-# TODO: Stworzyć dektorator który nakłada na funkcję konieczność autoryzacji
 
 @auth.route('/api/register', methods=['POST'])
+@role_required(['admin', 'manager'])
 def register():
     data = request.get_json()
 
@@ -57,14 +58,17 @@ def login():
 
     user = Employee.query.filter_by(employee_id=employee_id).first()
 
-    print(f'user: {user}')
+    if user:
+        print(f'user: {user}')
 
-    bytes = password.encode('utf-8')
-    userBytes = user.password.encode('utf-8')
+        bytes = password.encode('utf-8')
+        userBytes = user.password.encode('utf-8')
 
-    if user and bcrypt.checkpw(bytes, userBytes):
-        access_token = create_access_token(identity=user.employee_id, additional_claims={"role": user.role})
+        if user and bcrypt.checkpw(bytes, userBytes):
+            access_token = create_access_token(identity=user.employee_id, additional_claims={"role": user.role})
 
-        return jsonify({'message': 'Login Success', 'access_token': access_token})
+            return jsonify({'message': 'Login Success', 'access_token': access_token})
+        else:
+            return jsonify({'message': 'Login Failed'}), 401
     else:
-        return jsonify({'message': 'Login Failed'}), 401
+        return jsonify({'message': 'user doesnt exist'}), 401

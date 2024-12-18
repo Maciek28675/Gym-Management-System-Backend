@@ -32,11 +32,11 @@ def create_app():
     
     jwt.init_app(app)
 
-    from .routes import routes
     from .auth import auth
+    from .routes.customer_routes import customer
 
-    app.register_blueprint(routes, url_prefix='/')
     app.register_blueprint(auth, url_prefix='/')
+    app.register_blueprint(customer, url_prefix='/')
 
     from . import models
 
