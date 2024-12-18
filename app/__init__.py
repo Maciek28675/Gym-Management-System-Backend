@@ -33,10 +33,22 @@ def create_app():
     jwt.init_app(app)
 
     from .auth import auth
-    from .routes.customer_routes import customer
+    from .routes.customer_routes import customer_routes
+    from .routes.employee_routes import employee_routes
+    from .routes.gym_routes import gym_routes
+    from .routes.gymclass_routes import gymclass_routes
+    from .routes.product_routes import product_routes
+    from .routes.schedule_routes import schedule_routes
+    from .routes.subscription_routes import subscription_routes
 
-    app.register_blueprint(auth, url_prefix='/')
-    app.register_blueprint(customer, url_prefix='/')
+    app.register_blueprint(auth, url_prefix='/api')
+    app.register_blueprint(customer_routes, url_prefix='/api')
+    app.register_blueprint(employee_routes, url_prefix='/api')
+    app.register_blueprint(gym_routes, url_prefix='/api')
+    app.register_blueprint(gymclass_routes, url_prefix='/api')
+    app.register_blueprint(product_routes, url_prefix='/api')
+    app.register_blueprint(schedule_routes, url_prefix='/api')
+    app.register_blueprint(subscription_routes, url_prefix='/api')
 
     from . import models
 

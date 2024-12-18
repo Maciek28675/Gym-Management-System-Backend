@@ -3,14 +3,11 @@ from app.models import Product
 from app import db
 import logging
 
-# Konfiguracja logowania błędów
 logging.basicConfig(level=logging.ERROR)
 
-# Blueprint dla tras związanych z produktami
 product_routes = Blueprint('product_routes', __name__)
 
 
-# Funkcja dodawania produktu
 @product_routes.route('/api/add_product', methods=['POST'])
 def add_product():
     data = request.get_json()
