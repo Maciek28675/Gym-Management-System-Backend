@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import create_access_token
 import bcrypt
 import logging
