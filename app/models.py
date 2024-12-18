@@ -69,8 +69,8 @@ class Product(db.Model):
     product_id = db.Column(db.Integer, primary_key=True)
     gym_id = db.Column(db.Integer, db.ForeignKey('gym.gym_id'), nullable=False)
     name = db.Column(db.String(50), nullable=False)
-    quantity_in_stock = db.Column(db.Integer, nullable=False)
-    quantity_sold = db.Column(db.Integer, nullable=False)
+    quantity_in_stock = db.Column(db.Integer, default=0)
+    quantity_sold = db.Column(db.Integer, default=0)
     price = db.Column(db.Numeric(5, 2), nullable=False)
     total_revenue = db.Column(db.Numeric(12, 2))
 
@@ -92,3 +92,12 @@ class GymClass(db.Model):
     employee = db.relationship('Employee', back_populates='gym_classes')
     gym = db.relationship('Gym', back_populates='gym_classes')
     schedules = db.relationship('Schedule', back_populates='gym_class')
+
+class CustomerGymClass(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    customer_id = db.Column(db.Integer, db.ForeignKey('customer.customer_id'), nullable=False)
+    gymclass_id = db.Column(db.Integer, db.ForeignKey('gym_class.gymclass_id'), nullable=False)
+
+    # Relations
+    customer = db.relationship('Customer', backref='gym_classes')
+    gym_class = db.relationship('GymClass', backref='customers')

@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from app.models import GymClass, Employee, Gym
+from app.models import GymClass, Employee, Gym, CustomerGymClass
 from app import db
 import logging
 
@@ -122,4 +122,75 @@ def get_gymclass(gymclass_id):
         return jsonify(result), 200
     except Exception as e:
         logging.error(f"An error occurred while retrieving gymclass: {str(e)}")
+        return jsonify({"msg": "An internal error occurred"}), 500
+    
+from app.models import Customer, GymClass, CustomerGymClass
+from app import db
+from flask import Blueprint, request, jsonify
+import logging
+
+gymclass_routes = Blueprint('gymclass_routes', __name__)
+
+logging.basicConfig(level=logging.ERROR)
+
+
+@gymclass_routes.route('/api/enroll_customer/<int:gymclass_id>', methods=['POST'])
+def enroll_customer(gymclass_id):
+    data = request.get_json()
+
+    if 'customer_id' not in data:
+        return jsonify({"msg": "Customer ID is required"}), 400
+
+    customer_id = data['customer_id']
+
+    customer = Customer.query.get(customer_id)
+    if not customer:
+        return jsonify({"msg": "Customer does not exist"}), 404
+
+    gym_class = GymClass.query.get(gymclass_id)
+    if not gym_class:
+        return jsonify({"msg": "Gym class does not exist"}), 404
+
+    if gym_class.signed_people >= gym_class.max_people:
+        return jsonify({"msg": "No available spots in this class"}), 400
+
+    existing_enrollment = CustomerGymClass.query.filter_by(customer_id=customer_id, gymclass_id=gymclass_id).first()
+    if existing_enrollment:
+        return jsonify({"msg": "Customer already enrolled in this class"}), 400
+
+    try:
+        new_enrollment = CustomerGymClass(customer_id=customer_id, gymclass_id=gymclass_id)
+        gym_class.signed_people += 1
+        db.session.add(new_enrollment)
+        db.session.commit()
+        return jsonify({"msg": "Customer enrolled successfully"}), 201
+
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"An error occurred: {str(e)}")
+        return jsonify({"msg": "An internal error occurred"}), 500
+
+@gymclass_routes.route('/api/unenroll_customer/<int:gymclass_id>', methods=['POST'])
+def unenroll_customer(gymclass_id):
+    data = request.get_json()
+
+    if 'customer_id' not in data:
+        return jsonify({"msg": "Customer ID is required"}), 400
+
+    customer_id = data['customer_id']
+
+    enrollment = CustomerGymClass.query.filter_by(customer_id=customer_id, gymclass_id=gymclass_id).first()
+    if not enrollment:
+        return jsonify({"msg": "Customer is not enrolled in this class"}), 404
+
+    try:
+        gym_class = GymClass.query.get(gymclass_id)
+        gym_class.signed_people -= 1
+        db.session.delete(enrollment)
+        db.session.commit()
+        return jsonify({"msg": "Customer unenrolled successfully"}), 200
+
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"An error occurred: {str(e)}")
         return jsonify({"msg": "An internal error occurred"}), 500

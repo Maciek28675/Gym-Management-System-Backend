@@ -119,3 +119,30 @@ def get_product(product_id):
     except Exception as e:
         logging.error(f"An error occurred while retrieving product: {str(e)}")
         return jsonify({"msg": "An internal error occurred"}), 500
+
+@product_routes.route('/api/sell_product/<int:product_id>', methods=['POST'])
+def sell_product(product_id):
+    data = request.get_json()
+
+    if 'quantity_sold' not in data or not isinstance(data['quantity_sold'], int) or data['quantity_sold'] <= 0:
+        return jsonify({"msg": "Valid 'quantity_sold' is required"}), 400
+
+    product = Product.query.get(product_id)
+    if not product:
+        return jsonify({"msg": "Product does not exist"}), 404
+
+    if product.quantity_in_stock < data['quantity_sold']:
+        return jsonify({"msg": "Not enough stock available"}), 400
+
+    try:
+        product.quantity_in_stock -= data['quantity_sold']
+        product.quantity_sold += data['quantity_sold']
+        product.total_revenue += data['quantity_sold'] * float(product.price)
+
+        db.session.commit()
+        return jsonify({"msg": "Product sold successfully"}), 200
+
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"An error occurred during product sale: {str(e)}")
+        return jsonify({"msg": "An internal error occurred"}), 500
