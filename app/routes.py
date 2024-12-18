@@ -12,7 +12,8 @@ def home():
         return "Database connection successful!", 200
     except Exception as e:
         return f"Error: {e}", 500
-    
+
+
 @routes.route('/api/add_customer', methods=['POST'])
 def add_customer():
     data = request.get_json()
@@ -46,6 +47,7 @@ def add_customer():
         db.session.rollback()
         return jsonify({"msg": f"An error occurred: {str(e)}"}), 500
 
+
 @routes.route('/api/update_customer/<int:customer_id>', methods=['PUT'])
 def update_customer(customer_id):
     data = request.get_json()
@@ -69,6 +71,7 @@ def update_customer(customer_id):
         db.session.rollback()
         return jsonify({"msg": f"An error occurred: {str(e)}"}), 500
 
+
 @routes.route('/api/delete_customer/<int:customer_id>', methods=['DELETE'])
 def delete_customer(customer_id):
     try:
@@ -82,6 +85,7 @@ def delete_customer(customer_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({"msg": f"An error occurred: {str(e)}"}), 500
+
 
 @routes.route('/api/add_gymclass', methods=['POST'])
 def add_gymclass():
@@ -122,6 +126,7 @@ def add_gymclass():
         db.session.rollback()
         return jsonify({"msg": f"An error occurred: {str(e)}"}), 500
 
+
 @routes.route('/api/update_gymclass/<int:gymclass_id>', methods=['PUT'])
 def update_gymclass(gymclass_id):
     data = request.get_json()
@@ -144,7 +149,8 @@ def update_gymclass(gymclass_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({"msg": f"An error occurred: {str(e)}"}), 500
-    
+
+
 @routes.route('/api/delete_gymclass/<int:gymclass_id>', methods=['DELETE'])
 def delete_gymclass(gymclass_id):
     try:
@@ -158,7 +164,8 @@ def delete_gymclass(gymclass_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({"msg": f"An error occurred: {str(e)}"}), 500
-    
+
+
 @routes.route('/api/add_subscription', methods=['POST'])
 def add_subscription():
     data = request.get_json()
@@ -186,6 +193,7 @@ def add_subscription():
         db.session.rollback()
         return jsonify({"msg": f"An error occurred: {str(e)}"}), 500
 
+
 @routes.route('/api/update_subscription/<int:subscription_id>', methods=['PUT'])
 def update_subscription(subscription_id):
     data = request.get_json()
@@ -208,6 +216,7 @@ def update_subscription(subscription_id):
         db.session.rollback()
         return jsonify({"msg": f"An error occurred: {str(e)}"}), 500
 
+
 @routes.route('/api/delete_subscription/<int:subscription_id>', methods=['DELETE'])
 def delete_subscription(subscription_id):
     try:
@@ -222,6 +231,7 @@ def delete_subscription(subscription_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({"msg": f"An error occurred: {str(e)}"}), 500
+
 
 @routes.route('/api/add_gym', methods=['POST'])
 def add_gym():
