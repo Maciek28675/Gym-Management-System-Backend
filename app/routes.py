@@ -85,7 +85,24 @@ def delete_customer(customer_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({"msg": f"An error occurred: {str(e)}"}), 500
+    
 
+@routes.route('/api/get_customer/<int:customer_id>', methods=['GET'])
+def get_customer(customer_id):
+    customer = Customer.query.get(customer_id)
+    if not customer:
+        return jsonify({"msg": "Customer does not exist"}), 404
+
+    result = {
+        "customer_id": customer.customer_id,
+        "subscription_id": customer.subscription_id,
+        "first_name": customer.first_name,
+        "last_name": customer.last_name,
+        "address": customer.address,
+        "phone_number": customer.phone_number,
+        "sub_purchase_date": customer.sub_purchase_date,
+    }
+    return jsonify(result), 200
 
 @routes.route('/api/add_gymclass', methods=['POST'])
 def add_gymclass():
@@ -111,7 +128,7 @@ def add_gymclass():
         
         new_gymclass = GymClass(
             gymclass_id=gymclass_id,
-            employee_id=employee,
+            employee_id=employee_id,
             gym_id=gym_id,
             name=name,
             max_people=max_people,
@@ -164,8 +181,25 @@ def delete_gymclass(gymclass_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({"msg": f"An error occurred: {str(e)}"}), 500
+    
+@routes.route('/api/get_gymclass/<int:gymclass_id>', methods=['GET'])
+def get_gymclass(gymclass_id):
+    gymclass = GymClass.query.get(gymclass_id)
+    if not gymclass:
+        return jsonify({"msg": "Gym class does not exist"}), 404
 
-
+    result = {
+        "gymclass_id": gymclass.gymclass_id,
+        "employee_id": gymclass.employee_id,
+        "gym_id": gymclass.gym_id,
+        "name": gymclass.name,
+        "max_people": gymclass.max_people,
+        "time": gymclass.time,
+        "day_otw": gymclass.day_otw,
+        "signed_people": gymclass.signed_people,
+    }
+    return jsonify(result), 200
+    
 @routes.route('/api/add_subscription', methods=['POST'])
 def add_subscription():
     data = request.get_json()
@@ -231,6 +265,20 @@ def delete_subscription(subscription_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({"msg": f"An error occurred: {str(e)}"}), 500
+    
+@routes.route('/api/get_subscription/<int:subscription_id>', methods=['GET'])
+def get_subscription(subscription_id):
+    subscription = Subscription.query.get(subscription_id)
+    if not subscription:
+        return jsonify({"msg": "Subscription does not exist"}), 404
+
+    result = {
+        "subscription_id": subscription.subscription_id,
+        "type": subscription.type,
+        "price": subscription.price,
+        "period": subscription.period,
+    }
+    return jsonify(result), 200
 
 
 @routes.route('/api/add_gym', methods=['POST'])
@@ -257,3 +305,16 @@ def add_gym():
     except Exception as e:
         db.session.rollback()
         return jsonify({"msg": f"An error occurred: {str(e)}"}), 500
+    
+@routes.route('/api/get_gym/<int:gym_id>', methods=['GET'])
+def get_gym(gym_id):
+    gym = Gym.query.get(gym_id)
+    if not gym:
+        return jsonify({"msg": "Gym does not exist"}), 404
+
+    result = {
+        "gym_id": gym.gym_id,
+        "name": gym.name,
+        "address": gym.address,
+    }
+    return jsonify(result), 200
