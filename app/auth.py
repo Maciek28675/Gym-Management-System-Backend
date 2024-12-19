@@ -14,6 +14,11 @@ auth = Blueprint('auth', __name__)
 
 @auth.route('/first_register', methods=['POST'])
 def first_register():
+    manager_exists = Employee.query.filter_by(role='manager').first()
+
+    if manager_exists:
+        return jsonify({'msg': "A manager already exists. This route is no longer accessible."}), 403
+    
     data = request.get_json()
 
     if not data:

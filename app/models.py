@@ -32,7 +32,7 @@ class Subscription(db.Model):
     subscription_id = db.Column(db.Integer, primary_key=True)
     type = db.Column(db.String(50), nullable=False)
     price = db.Column(db.Numeric(6, 2), nullable=False)
-    period = db.Column(db.String(20), nullable=False)
+    period = db.Column(Date, nullable=False)
 
     # Relations
     customers = db.relationship('Customer', back_populates='subscription')
