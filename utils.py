@@ -9,7 +9,7 @@ def role_required(required_roles: list):
             current_user = get_jwt_identity()
             user_data = Employee.query.get(current_user)
 
-            if user_data and user_data['role'] in required_roles:
+            if user_data and user_data.role in required_roles:
                 return func(*args, **kwargs)
             else:
                 return jsonify({'msg': 'Access denied'}), 403

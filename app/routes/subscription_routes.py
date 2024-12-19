@@ -8,7 +8,7 @@ logging.basicConfig(level=logging.ERROR)
 subscription_routes = Blueprint('subscription_routes', __name__)
 
 
-@subscription_routes.route('/api/add_subscription', methods=['POST'])
+@subscription_routes.route('/add_subscription', methods=['POST'])
 def add_subscription():
     data = request.get_json()
 
@@ -50,7 +50,7 @@ def add_subscription():
         return jsonify({"msg": "An internal error occurred"}), 500
 
 
-@subscription_routes.route('/api/update_subscription/<int:subscription_id>', methods=['PUT'])
+@subscription_routes.route('/update_subscription/<int:subscription_id>', methods=['PUT'])
 def update_subscription(subscription_id):
     data = request.get_json()
 
@@ -76,7 +76,7 @@ def update_subscription(subscription_id):
         return jsonify({"msg": "An internal error occurred"}), 500
 
 
-@subscription_routes.route('/api/delete_subscription/<int:subscription_id>', methods=['DELETE'])
+@subscription_routes.route('/delete_subscription/<int:subscription_id>', methods=['DELETE'])
 def delete_subscription(subscription_id):
     try:
         subscription = Subscription.query.get(subscription_id)
@@ -92,7 +92,7 @@ def delete_subscription(subscription_id):
         return jsonify({"msg": "An internal error occurred"}), 500
 
 
-@subscription_routes.route('/api/get_subscription/<int:subscription_id>', methods=['GET'])
+@subscription_routes.route('/get_subscription/<int:subscription_id>', methods=['GET'])
 def get_subscription(subscription_id):
     try:
         subscription = Subscription.query.get(subscription_id)

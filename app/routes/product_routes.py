@@ -8,7 +8,7 @@ logging.basicConfig(level=logging.ERROR)
 product_routes = Blueprint('product_routes', __name__)
 
 
-@product_routes.route('/api/add_product', methods=['POST'])
+@product_routes.route('/add_product', methods=['POST'])
 def add_product():
     data = request.get_json()
 
@@ -54,7 +54,7 @@ def add_product():
         return jsonify({"msg": "An internal error occurred"}), 500
 
 
-@product_routes.route('/api/update_product/<int:product_id>', methods=['PUT'])
+@product_routes.route('/update_product/<int:product_id>', methods=['PUT'])
 def update_product(product_id):
     data = request.get_json()
 
@@ -80,7 +80,7 @@ def update_product(product_id):
         return jsonify({"msg": "An internal error occurred"}), 500
 
 
-@product_routes.route('/api/delete_product/<int:product_id>', methods=['DELETE'])
+@product_routes.route('/delete_product/<int:product_id>', methods=['DELETE'])
 def delete_product(product_id):
     try:
         product = Product.query.get(product_id)
@@ -96,7 +96,7 @@ def delete_product(product_id):
         return jsonify({"msg": "An internal error occurred"}), 500
 
 
-@product_routes.route('/api/get_product/<int:product_id>', methods=['GET'])
+@product_routes.route('/get_product/<int:product_id>', methods=['GET'])
 def get_product(product_id):
     try:
         product = Product.query.get(product_id)
@@ -117,7 +117,7 @@ def get_product(product_id):
         logging.error(f"An error occurred while retrieving product: {str(e)}")
         return jsonify({"msg": "An internal error occurred"}), 500
 
-@product_routes.route('/api/sell_product/<int:product_id>', methods=['POST'])
+@product_routes.route('/sell_product/<int:product_id>', methods=['POST'])
 def sell_product(product_id):
     data = request.get_json()
 

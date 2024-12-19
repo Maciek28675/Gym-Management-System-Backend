@@ -8,7 +8,7 @@ logging.basicConfig(level=logging.ERROR)
 employee_routes = Blueprint('employee_routes', __name__)
 
 
-@employee_routes.route('/api/update_employee/<int:employee_id>', methods=['PUT'])
+@employee_routes.route('/update_employee/<int:employee_id>', methods=['PUT'])
 def update_employee(employee_id):
     data = request.get_json()
 
@@ -38,7 +38,7 @@ def update_employee(employee_id):
         return jsonify({"msg": "An internal error occurred"}), 500
 
 
-@employee_routes.route('/api/delete_employee/<int:employee_id>', methods=['DELETE'])
+@employee_routes.route('/delete_employee/<int:employee_id>', methods=['DELETE'])
 def delete_employee(employee_id):
     try:
         employee = Employee.query.get(employee_id)
@@ -54,7 +54,7 @@ def delete_employee(employee_id):
         return jsonify({"msg": "An internal error occurred"}), 500
 
 
-@employee_routes.route('/api/get_employee/<int:employee_id>', methods=['GET'])
+@employee_routes.route('/get_employee/<int:employee_id>', methods=['GET'])
 def get_employee(employee_id):
     employee = Employee.query.get(employee_id)
     if not employee:

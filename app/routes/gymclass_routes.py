@@ -8,7 +8,7 @@ logging.basicConfig(level=logging.ERROR)
 gymclass_routes = Blueprint('gymclass_routes', __name__)
 
 
-@gymclass_routes.route('/api/add_gymclass', methods=['POST'])
+@gymclass_routes.route('/add_gymclass', methods=['POST'])
 def add_gymclass():
     data = request.get_json()
 
@@ -58,7 +58,7 @@ def add_gymclass():
         return jsonify({"msg": "An internal error occurred"}), 500
 
 
-@gymclass_routes.route('/api/update_gymclass/<int:gymclass_id>', methods=['PUT'])
+@gymclass_routes.route('/update_gymclass/<int:gymclass_id>', methods=['PUT'])
 def update_gymclass(gymclass_id):
     data = request.get_json()
 
@@ -85,7 +85,7 @@ def update_gymclass(gymclass_id):
         return jsonify({"msg": "An internal error occurred"}), 500
 
 
-@gymclass_routes.route('/api/delete_gymclass/<int:gymclass_id>', methods=['DELETE'])
+@gymclass_routes.route('/delete_gymclass/<int:gymclass_id>', methods=['DELETE'])
 def delete_gymclass(gymclass_id):
     try:
         gymclass = GymClass.query.get(gymclass_id)
@@ -102,7 +102,7 @@ def delete_gymclass(gymclass_id):
         return jsonify({"msg": "An internal error occurred"}), 500
 
 
-@gymclass_routes.route('/api/get_gymclass/<int:gymclass_id>', methods=['GET'])
+@gymclass_routes.route('/get_gymclass/<int:gymclass_id>', methods=['GET'])
 def get_gymclass(gymclass_id):
     try:
         gymclass = GymClass.query.get(gymclass_id)
@@ -134,7 +134,7 @@ gymclass_routes = Blueprint('gymclass_routes', __name__)
 logging.basicConfig(level=logging.ERROR)
 
 
-@gymclass_routes.route('/api/enroll_customer/<int:gymclass_id>', methods=['POST'])
+@gymclass_routes.route('/enroll_customer/<int:gymclass_id>', methods=['POST'])
 def enroll_customer(gymclass_id):
     data = request.get_json()
 
@@ -170,7 +170,7 @@ def enroll_customer(gymclass_id):
         logging.error(f"An error occurred: {str(e)}")
         return jsonify({"msg": "An internal error occurred"}), 500
 
-@gymclass_routes.route('/api/unenroll_customer/<int:gymclass_id>', methods=['POST'])
+@gymclass_routes.route('/unenroll_customer/<int:gymclass_id>', methods=['POST'])
 def unenroll_customer(gymclass_id):
     data = request.get_json()
 

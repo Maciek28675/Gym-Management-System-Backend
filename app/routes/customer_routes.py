@@ -8,7 +8,7 @@ logging.basicConfig(level=logging.ERROR)
 customer_routes = Blueprint('customer_routes', __name__)
 
 
-@customer_routes.route('/api/add_customer', methods=['POST'])
+@customer_routes.route('/add_customer', methods=['POST'])
 def add_customer():
     data = request.get_json()
 
@@ -49,7 +49,7 @@ def add_customer():
         return jsonify({"msg": "An internal error occurred"}), 500
 
 
-@customer_routes.route('/api/update_customer/<int:customer_id>', methods=['PUT'])
+@customer_routes.route('/update_customer/<int:customer_id>', methods=['PUT'])
 def update_customer(customer_id):
     data = request.get_json()
 
@@ -75,7 +75,7 @@ def update_customer(customer_id):
         return jsonify({"msg": "An internal error occurred"}), 500
 
 
-@customer_routes.route('/api/delete_customer/<int:customer_id>', methods=['DELETE'])
+@customer_routes.route('/delete_customer/<int:customer_id>', methods=['DELETE'])
 def delete_customer(customer_id):
     try:
         customer = Customer.query.get(customer_id)
@@ -91,7 +91,7 @@ def delete_customer(customer_id):
         return jsonify({"msg": "An internal error occurred"}), 500
 
 
-@customer_routes.route('/api/get_customer/<int:customer_id>', methods=['GET'])
+@customer_routes.route('/get_customer/<int:customer_id>', methods=['GET'])
 def get_customer(customer_id):
     customer = Customer.query.get(customer_id)
     if not customer:

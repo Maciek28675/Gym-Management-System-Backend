@@ -8,7 +8,7 @@ logging.basicConfig(level=logging.ERROR)
 gym_routes = Blueprint('gym_routes', __name__)
 
 
-@gym_routes.route('/api/add_gym', methods=['POST'])
+@gym_routes.route('/add_gym', methods=['POST'])
 def add_gym():
     data = request.get_json()
 
@@ -46,7 +46,7 @@ def add_gym():
         return jsonify({"msg": "An internal error occurred"}), 500
 
 
-@gym_routes.route('/api/get_gym/<int:gym_id>', methods=['GET'])
+@gym_routes.route('/get_gym/<int:gym_id>', methods=['GET'])
 def get_gym(gym_id):
     try:
         gym = Gym.query.get(gym_id)

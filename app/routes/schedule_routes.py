@@ -8,7 +8,7 @@ logging.basicConfig(level=logging.ERROR)
 schedule_routes = Blueprint('schedule_routes', __name__)
 
 
-@schedule_routes.route('/api/add_schedule', methods=['POST'])
+@schedule_routes.route('/add_schedule', methods=['POST'])
 def add_schedule():
     data = request.get_json()
 
@@ -53,7 +53,7 @@ def add_schedule():
         return jsonify({"msg": "An internal error occurred"}), 500
 
 
-@schedule_routes.route('/api/update_schedule/<int:schedule_id>', methods=['PUT'])
+@schedule_routes.route('/update_schedule/<int:schedule_id>', methods=['PUT'])
 def update_schedule(schedule_id):
     data = request.get_json()
 
@@ -79,7 +79,7 @@ def update_schedule(schedule_id):
         return jsonify({"msg": "An internal error occurred"}), 500
 
 
-@schedule_routes.route('/api/delete_schedule/<int:schedule_id>', methods=['DELETE'])
+@schedule_routes.route('/delete_schedule/<int:schedule_id>', methods=['DELETE'])
 def delete_schedule(schedule_id):
     try:
         schedule = Schedule.query.get(schedule_id)
@@ -96,7 +96,7 @@ def delete_schedule(schedule_id):
         return jsonify({"msg": "An internal error occurred"}), 500
 
 
-@schedule_routes.route('/api/get_schedule/<int:schedule_id>', methods=['GET'])
+@schedule_routes.route('/get_schedule/<int:schedule_id>', methods=['GET'])
 def get_schedule(schedule_id):
     try:
         schedule = Schedule.query.get(schedule_id)
