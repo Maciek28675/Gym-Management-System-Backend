@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from app.models import Product
 from app import db
 import logging
+from decimal import Decimal
 
 product_routes = Blueprint('product_routes', __name__)
 
@@ -14,24 +15,15 @@ def add_product():
         logging.error("No data provided for adding a product")
         return jsonify({"msg": "No data provided"}), 400
 
-    required_fields = {'product_id', 'gym_id', 'name', 'quantity_in_stock', 'quantity_sold', 'price', 'total_revenue'}
+    required_fields = {'gym_id', 'name', 'quantity_in_stock', 'quantity_sold', 'price', 'total_revenue'}
+
     for field in required_fields:
         if field not in data:
             logging.error(f"Missing required field: {field}")
             return jsonify({"msg": f"Field '{field}' is required"}), 400
 
-    if not isinstance(data['product_id'], int) or data['product_id'] <= 0:
-        logging.error("Invalid product_id")
-        return jsonify({"msg": "product_id must be a positive integer"}), 400
-
-    product = Product.query.filter_by(product_id=data['product_id']).first()
-    if product:
-        logging.error(f"Product with ID {data['product_id']} already exists")
-        return jsonify({"msg": "Product already exists"}), 400
-
     try:
         new_product = Product(
-            product_id=data['product_id'],
             gym_id=data['gym_id'],
             name=data['name'],
             quantity_in_stock=data['quantity_in_stock'],
@@ -41,11 +33,13 @@ def add_product():
         )
         db.session.add(new_product)
         db.session.commit()
-        logging.info(f"Product {data['product_id']} added successfully")
+
+        logging.info(f"Product added successfully")
         return jsonify({"msg": "Product added successfully"}), 201
 
     except Exception as e:
         db.session.rollback()
+
         logging.error(f"An error occurred while adding product: {str(e)}")
         return jsonify({"msg": "An internal error occurred"}), 500
 
@@ -59,11 +53,13 @@ def update_product(product_id):
         return jsonify({"msg": "No data provided"}), 400
 
     product = Product.query.get(product_id)
+
     if not product:
         logging.error(f"Product with ID {product_id} does not exist")
         return jsonify({"msg": "Product does not exist"}), 404
 
-    allowed_fields = {'gym_id', 'name', 'quantity_in_stock', 'quantity_sold', 'price', 'total_revenue'}
+    allowed_fields = {'gym_id', 'name', 'quantity_in_stock', 'price', 'total_revenue'}
+
     for key, value in data.items():
         if key not in allowed_fields:
             logging.error(f"Field '{key}' is not allowed for update")
@@ -72,11 +68,13 @@ def update_product(product_id):
 
     try:
         db.session.commit()
+
         logging.info(f"Product {product_id} updated successfully")
         return jsonify({"msg": "Product updated successfully"}), 200
 
     except Exception as e:
         db.session.rollback()
+
         logging.error(f"An error occurred while updating product {product_id}: {str(e)}")
         return jsonify({"msg": "An internal error occurred"}), 500
 
@@ -134,6 +132,7 @@ def sell_product(product_id):
         return jsonify({"msg": "Valid 'quantity_sold' is required"}), 400
 
     product = Product.query.get(product_id)
+
     if not product:
         logging.error(f"Product with ID {product_id} does not exist")
         return jsonify({"msg": "Product does not exist"}), 404
@@ -145,7 +144,7 @@ def sell_product(product_id):
     try:
         product.quantity_in_stock -= data['quantity_sold']
         product.quantity_sold += data['quantity_sold']
-        product.total_revenue += data['quantity_sold'] * float(product.price)
+        product.total_revenue += Decimal(data['quantity_sold']) * Decimal(product.price)
 
         db.session.commit()
         logging.info(f"Product {product_id} sold successfully. Quantity: {data['quantity_sold']}")

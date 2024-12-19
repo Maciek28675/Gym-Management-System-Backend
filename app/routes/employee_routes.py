@@ -15,11 +15,13 @@ def update_employee(employee_id):
         return jsonify({"msg": "No data provided"}), 400
 
     employee = Employee.query.get(employee_id)
+
     if not employee:
         logging.warning(f"Employee with ID {employee_id} does not exist")
         return jsonify({"msg": "Employee does not exist"}), 404
 
     allowed_fields = {'password', 'gym_id', 'first_name', 'last_name', 'role'}
+
     for key, value in data.items():
         if key not in allowed_fields:
             logging.error(f"Field '{key}' is not allowed for update")
@@ -34,10 +36,13 @@ def update_employee(employee_id):
     try:
         db.session.commit()
         logging.info(f"Employee updated successfully: ID {employee_id}")
+
         return jsonify({"msg": "Employee updated successfully"}), 200
+    
     except Exception as e:
         db.session.rollback()
         logging.error(f"An error occurred while updating an employee: {str(e)}")
+        
         return jsonify({"msg": "An internal error occurred"}), 500
 
 

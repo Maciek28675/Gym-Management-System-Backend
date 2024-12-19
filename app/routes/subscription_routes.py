@@ -5,6 +5,7 @@ import logging
 
 subscription_routes = Blueprint('subscription_routes', __name__)
 
+
 @subscription_routes.route('/add_subscription', methods=['POST'])
 def add_subscription():
     data = request.get_json()
@@ -13,44 +14,41 @@ def add_subscription():
         logging.error("No data provided for adding a subscription")
         return jsonify({"msg": "No data provided"}), 400
 
-    required_fields = {'subscription_id', 'type', 'price', 'period'}
+    required_fields = {'type', 'price', 'period'}
+
     for field in required_fields:
         if field not in data:
             logging.error(f"Missing required field: {field}")
             return jsonify({"msg": f"Field '{field}' is required"}), 400
 
-    if not isinstance(data['subscription_id'], int) or data['subscription_id'] <= 0:
-        logging.error("Invalid subscription_id provided")
-        return jsonify({"msg": "subscription_id must be a positive integer"}), 400
     if not isinstance(data['price'], (float, int)) or data['price'] < 0:
         logging.error("Invalid price value")
         return jsonify({"msg": "price must be a positive number"}), 400
+    
     if not isinstance(data['type'], str) or not data['type'].strip():
         logging.error("Invalid type value")
         return jsonify({"msg": "type must be a non-empty string"}), 400
+    
     if not isinstance(data['period'], int) or data['period'] < 0:
         logging.error("Invalid period value")
         return jsonify({"msg": "period must be a non-negative integer"}), 400
 
     try:
-        existing_subscription = Subscription.query.get(data['subscription_id'])
-        if existing_subscription:
-            logging.warning(f"Subscription with ID {data['subscription_id']} already exists")
-            return jsonify({"msg": "Subscription already exists"}), 400
-
         new_subscription = Subscription(
-            subscription_id=data['subscription_id'],
             type=data['type'],
             price=data['price'],
             period=data['period']
         )
+
         db.session.add(new_subscription)
         db.session.commit()
-        logging.info(f"Subscription added successfully: ID {data['subscription_id']}")
+
+        logging.info(f"Subscription added successfully")
         return jsonify({"msg": "Subscription added successfully"}), 201
 
     except Exception as e:
         db.session.rollback()
+
         logging.error(f"An error occurred while adding subscription: {str(e)}")
         return jsonify({"msg": "An internal error occurred"}), 500
 
@@ -64,11 +62,13 @@ def update_subscription(subscription_id):
         return jsonify({"msg": "No data provided"}), 400
 
     subscription = Subscription.query.get(subscription_id)
+
     if not subscription:
         logging.warning(f"Subscription with ID {subscription_id} does not exist")
         return jsonify({"msg": "Subscription does not exist"}), 404
 
     allowed_fields = {'type', 'price', 'period'}
+
     for key, value in data.items():
         if key not in allowed_fields:
             logging.error(f"Field '{key}' is not allowed for update")
@@ -77,10 +77,13 @@ def update_subscription(subscription_id):
 
     try:
         db.session.commit()
+
         logging.info(f"Subscription updated successfully: ID {subscription_id}")
         return jsonify({"msg": "Subscription updated successfully"}), 200
+    
     except Exception as e:
         db.session.rollback()
+
         logging.error(f"An error occurred while updating subscription: {str(e)}")
         return jsonify({"msg": "An internal error occurred"}), 500
 
@@ -89,16 +92,20 @@ def update_subscription(subscription_id):
 def delete_subscription(subscription_id):
     try:
         subscription = Subscription.query.get(subscription_id)
+
         if not subscription:
             logging.warning(f"Subscription with ID {subscription_id} does not exist")
             return jsonify({"msg": "Subscription does not exist"}), 404
 
         db.session.delete(subscription)
         db.session.commit()
+
         logging.info(f"Subscription deleted successfully: ID {subscription_id}")
         return jsonify({"msg": "Subscription deleted successfully"}), 200
+    
     except Exception as e:
         db.session.rollback()
+
         logging.error(f"An error occurred while deleting subscription: {str(e)}")
         return jsonify({"msg": "An internal error occurred"}), 500
 
@@ -107,6 +114,7 @@ def delete_subscription(subscription_id):
 def get_subscription(subscription_id):
     try:
         subscription = Subscription.query.get(subscription_id)
+
         if not subscription:
             logging.warning(f"Subscription with ID {subscription_id} does not exist")
             return jsonify({"msg": "Subscription does not exist"}), 404
@@ -117,8 +125,10 @@ def get_subscription(subscription_id):
             "price": float(subscription.price),
             "period": subscription.period
         }
+
         logging.info(f"Subscription retrieved successfully: ID {subscription_id}")
         return jsonify(result), 200
+    
     except Exception as e:
         logging.error(f"An error occurred while retrieving subscription: {str(e)}")
         return jsonify({"msg": "An internal error occurred"}), 500

@@ -10,8 +10,8 @@ import logging
 load_dotenv()
 
 logging.basicConfig(
-    filename='app.log',
-    filemode='a',
+    #filename='app.log',
+    #filemode='a',
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )

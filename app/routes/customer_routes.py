@@ -15,44 +15,65 @@ def add_customer():
         logging.error("No data provided for adding a customer")
         return jsonify({"msg": "No data provided"}), 400
 
-    required_fields = {'customer_id', 'subscription_id', 'first_name', 'last_name', 'address', 'phone_number', 'sub_purchase_date'}
+    required_fields = {'first_name', 'last_name', 'address', 'phone_number'}
+
     for field in required_fields:
         if field not in data:
             logging.error(f"Missing required field: {field}")
             return jsonify({"msg": f"Field '{field}' is required"}), 400
 
-    if not isinstance(data['customer_id'], int) or data['customer_id'] <= 0:
+    if 'customer_id' in data and (not isinstance(data['customer_id'], int) or data['customer_id'] <= 0):
         logging.error("Invalid customer_id provided")
         return jsonify({"msg": "customer_id must be a positive integer"}), 400
-    if not isinstance(data['subscription_id'], int):
+    
+    if 'subscription_id' in data and (data['subscription_id'] and not isinstance(data['subscription_id'], int)):
         logging.error("Invalid subscription_id provided")
         return jsonify({"msg": "subscription_id must be an integer"}), 400
 
-    customer = Customer.query.filter_by(customer_id=data['customer_id']).first()
-    if customer:
-        logging.warning(f"Customer with ID {data['customer_id']} already exists")
-        return jsonify({"msg": "Customer already exists"}), 400
+    subscription_id = data.get("subscription_id")
 
+    if subscription_id is not None:
+        subscription_exists = db.session.query(
+            db.session.query(Subscription).filter_by(subscription_id=subscription_id).exists()
+        ).scalar()
+        
+        if not subscription_exists:
+            logging.error(f"subscription_id {subscription_id} does not exist")
+            return jsonify({"msg": f"subscription_id {subscription_id} does not exist"}), 400
+        
+    
+    if 'sub_purchase_date' in data and data['sub_purchase_date'] is not None:
+        try:
+            data['sub_purchase_date'] = datetime.strptime(data['sub_purchase_date'], '%Y-%m-%d')
+        except ValueError:
+            logging.error("Invalid date format for sub_purchase_date")
+            return jsonify({"msg": "sub_purchase_date must be in the format 'YYYY-MM-DD'"}), 400
+        
     try:
         new_customer = Customer(
-            customer_id=data['customer_id'],
-            subscription_id=data['subscription_id'],
+            subscription_id=data.get('subscription_id'),
             first_name=data['first_name'],
             last_name=data['last_name'],
             address=data['address'],
             phone_number=data['phone_number'],
-            sub_purchase_date=data['sub_purchase_date']
+            sub_purchase_date=data.get('sub_purchase_date')
         )
+
         db.session.add(new_customer)
         db.session.commit()
-        logging.info(f"Customer added successfully: ID {data['customer_id']}")
+
+        logging.info(f"Customer added successfully")
+
         return jsonify({"msg": "Customer added successfully"}), 201
 
     except Exception as e:
         db.session.rollback()
+
         logging.error(f"An error occurred while adding a customer: {str(e)}")
         logging.error(f"An error occurred: {str(e)}")
+
         return jsonify({"msg": "An internal error occurred"}), 500
+
 
 @customer_routes.route('/update_customer/<int:customer_id>', methods=['PUT'])
 def update_customer(customer_id):
@@ -68,16 +89,19 @@ def update_customer(customer_id):
         return jsonify({"msg": "Customer does not exist"}), 404
 
     allowed_fields = {'subscription_id', 'first_name', 'last_name', 'address', 'phone_number', 'sub_purchase_date'}
+
     for key, value in data.items():
         if key not in allowed_fields:
             logging.error(f"Field '{key}' is not allowed for update")
             return jsonify({"msg": f"Field '{key}' is not allowed for update"}), 400
+        
         setattr(customer, key, value)
 
     try:
         db.session.commit()
         logging.info(f"Customer updated successfully: ID {customer_id}")
         return jsonify({"msg": "Customer updated successfully"}), 200
+    
     except Exception as e:
         db.session.rollback()
         logging.error(f"An error occurred while updating a customer: {str(e)}")
@@ -88,16 +112,20 @@ def update_customer(customer_id):
 def delete_customer(customer_id):
     try:
         customer = Customer.query.get(customer_id)
+
         if not customer:
             logging.warning(f"Customer with ID {customer_id} does not exist")
             return jsonify({"msg": "Customer does not exist"}), 404
 
         db.session.delete(customer)
         db.session.commit()
+
         logging.info(f"Customer deleted successfully: ID {customer_id}")
         return jsonify({"msg": "Customer deleted successfully"}), 200
+    
     except Exception as e:
         db.session.rollback()
+        
         logging.error(f"An error occurred while deleting a customer: {str(e)}")
         return jsonify({"msg": "An internal error occurred"}), 500
 

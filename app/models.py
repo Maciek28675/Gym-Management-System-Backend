@@ -1,6 +1,7 @@
 from . import db
 from sqlalchemy import Date
 
+
 class Employee(db.Model):
     employee_id = db.Column(db.Integer, primary_key=True)
     gym_id = db.Column(db.Integer, db.ForeignKey('gym.gym_id'), nullable=False)
@@ -17,7 +18,7 @@ class Employee(db.Model):
 
 class Customer(db.Model):
     customer_id = db.Column(db.Integer, primary_key=True)
-    subscription_id = db.Column(db.Integer, db.ForeignKey('subscription.subscription_id'), nullable=False)
+    subscription_id = db.Column(db.Integer, db.ForeignKey('subscription.subscription_id'))
     first_name = db.Column(db.String(50), nullable=False)
     last_name = db.Column(db.String(50), nullable=False)
     address = db.Column(db.Text)
@@ -32,7 +33,7 @@ class Subscription(db.Model):
     subscription_id = db.Column(db.Integer, primary_key=True)
     type = db.Column(db.String(50), nullable=False)
     price = db.Column(db.Numeric(6, 2), nullable=False)
-    period = db.Column(Date, nullable=False)
+    period = db.Column(db.Integer, nullable=False)
 
     # Relations
     customers = db.relationship('Customer', back_populates='subscription')
@@ -52,12 +53,13 @@ class Gym(db.Model):
 
 class Schedule(db.Model):
     schedule_id = db.Column(db.Integer, primary_key=True)
-    gymclass_id = db.Column(db.Integer, db.ForeignKey('gym_class.gymclass_id'), nullable=False)
+    gymclass_id = db.Column(db.Integer, db.ForeignKey('gym_class.gymclass_id'))
     gym_id = db.Column(db.Integer, db.ForeignKey('gym.gym_id'), nullable=False)
-    employee_id = db.Column(db.Integer, db.ForeignKey('employee.employee_id'), nullable=False)
+    employee_id = db.Column(db.Integer, db.ForeignKey('employee.employee_id'))
     day_otw = db.Column(db.String(15), nullable=False)
     start_time = db.Column(db.Time, nullable=False)
     end_time = db.Column(db.Time, nullable=False)
+    entry_type = db.Column(db.String(10), nullable=False)
 
     # Relations
     gym_class = db.relationship('GymClass', back_populates='schedules')

@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from app.models import GymClass, Employee, Gym, Customer, CustomerGymClass
 from app import db
 import logging
+from datetime import datetime
 
 gymclass_routes = Blueprint('gymclass_routes', __name__)
 
@@ -14,29 +15,33 @@ def add_gymclass():
         logging.error("No data provided for adding gym class")
         return jsonify({"msg": "No data provided"}), 400
 
-    required_fields = {'gymclass_id', 'employee_id', 'gym_id', 'name', 'max_people', 'time', 'day_otw', 'signed_people'}
+    required_fields = {'employee_id', 'gym_id', 'name', 'max_people', 'time', 'day_otw', 'signed_people'}
+
     for field in required_fields:
         if field not in data:
             logging.error(f"Missing required field: {field}")
             return jsonify({"msg": f"Field '{field}' is required"}), 400
-
-    if not isinstance(data['gymclass_id'], int) or data['gymclass_id'] <= 0:
-        logging.warning("Invalid gymclass_id provided")
-        return jsonify({"msg": "gymclass_id must be a positive integer"}), 400
-
+    
+    try:
+        is_time_valid = datetime.strptime(data['time'], "%H:%M:%S")
+    except ValueError:
+        logging.error("Time has to be in format HH:MM:SS")
+        return jsonify({"msg": "Wrong time format (HH:MM:SS expected)"}), 400
+    
     try:
         employee = Employee.query.get(data['employee_id'])
+
         if not employee:
             logging.warning(f"Employee with ID {data['employee_id']} does not exist")
             return jsonify({"msg": "Employee does not exist"}), 404
 
         gym = Gym.query.get(data['gym_id'])
+
         if not gym:
             logging.warning(f"Gym with ID {data['gym_id']} does not exist")
             return jsonify({"msg": "Gym does not exist"}), 404
 
         new_gymclass = GymClass(
-            gymclass_id=data['gymclass_id'],
             employee_id=data['employee_id'],
             gym_id=data['gym_id'],
             name=data['name'],
@@ -45,13 +50,16 @@ def add_gymclass():
             day_otw=data['day_otw'],
             signed_people=data['signed_people']
         )
+
         db.session.add(new_gymclass)
         db.session.commit()
-        logging.info(f"Gym class added successfully: ID {data['gymclass_id']}")
+
+        logging.info(f"Gym class added successfully")
         return jsonify({"msg": "Gym class added successfully"}), 201
 
     except Exception as e:
         db.session.rollback()
+
         logging.error(f"An error occurred while adding gym class: {str(e)}")
         return jsonify({"msg": "An internal error occurred"}), 500
 
@@ -142,11 +150,13 @@ def enroll_customer(gymclass_id):
     customer_id = data['customer_id']
 
     customer = Customer.query.get(customer_id)
+
     if not customer:
         logging.warning(f"Customer with ID {customer_id} does not exist")
         return jsonify({"msg": "Customer does not exist"}), 404
 
     gym_class = GymClass.query.get(gymclass_id)
+
     if not gym_class:
         logging.warning(f"Gym class with ID {gymclass_id} does not exist")
         return jsonify({"msg": "Gym class does not exist"}), 404
@@ -156,6 +166,7 @@ def enroll_customer(gymclass_id):
         return jsonify({"msg": "No available spots in this class"}), 400
 
     existing_enrollment = CustomerGymClass.query.filter_by(customer_id=customer_id, gymclass_id=gymclass_id).first()
+    
     if existing_enrollment:
         logging.warning(f"Customer ID {customer_id} is already enrolled in gym class ID {gymclass_id}")
         return jsonify({"msg": "Customer already enrolled in this class"}), 400

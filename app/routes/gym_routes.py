@@ -14,37 +14,33 @@ def add_gym():
         logging.error("No data provided for adding gym")
         return jsonify({"msg": "No data provided"}), 400
 
-    required_fields = {'gym_id', 'name', 'address'}
+    required_fields = {'name', 'address'}
+
     for field in required_fields:
         if field not in data:
             logging.error(f"Missing required field: {field}")
             return jsonify({"msg": f"Field '{field}' is required"}), 400
 
-    if not isinstance(data['gym_id'], int) or data['gym_id'] <= 0:
-        logging.warning("Invalid gym_id provided")
-        return jsonify({"msg": "gym_id must be a positive integer"}), 400
     if not isinstance(data['name'], str) or len(data['name']) < 2:
         logging.warning("Invalid name provided")
         return jsonify({"msg": "name must be a valid string with at least 2 characters"}), 400
+    
     if not isinstance(data['address'], str) or len(data['address']) < 5:
         logging.warning("Invalid address provided")
         return jsonify({"msg": "address must be a valid string with at least 5 characters"}), 400
 
-    gym = Gym.query.filter_by(gym_id=data['gym_id']).first()
-    if gym:
-        logging.warning(f"Gym with ID {data['gym_id']} already exists")
-        return jsonify({"msg": "Gym already exists"}), 400
-
     try:
         new_gym = Gym(
-            gym_id=data['gym_id'],
             name=data['name'],
             address=data['address'],
         )
+
         db.session.add(new_gym)
         db.session.commit()
-        logging.info(f"Gym added successfully: ID {data['gym_id']}")
+
+        logging.info(f"Gym added successfully")
         return jsonify({"msg": "Gym added successfully"}), 201
+    
     except Exception as e:
         db.session.rollback()
         logging.error(f"An error occurred while adding gym: {str(e)}")
