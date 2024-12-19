@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from app.models import Subscription
 from app import db
 import logging
+from datetime import timedelta
 
 logging.basicConfig(level=logging.ERROR)
 
@@ -26,8 +27,8 @@ def add_subscription():
         return jsonify({"msg": "price must be a positive number"}), 400
     if not isinstance(data['type'], str) or not data['type'].strip():
         return jsonify({"msg": "type must be a non-empty string"}), 400
-    if not isinstance(data['period'], str) or not data['period'].strip():
-        return jsonify({"msg": "period must be a non-empty string"}), 400
+    if not isinstance(data['period'], int) or not data['period'].strip():
+        return jsonify({"msg": "period must be a non negative integer"}), 400
 
     try:
         subscription = Subscription.query.get(data['subscription_id'])

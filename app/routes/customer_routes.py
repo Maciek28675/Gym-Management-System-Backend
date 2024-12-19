@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from app.models import Customer, Subscription
 from app import db
 import logging
-import datetime
+from datetime import datetime, date, timedelta
 
 logging.basicConfig(level=logging.ERROR)
 
@@ -109,6 +109,7 @@ def get_customer(customer_id):
     }
     return jsonify(result), 200
 
+
 @customer_routes.route('/check_sub_validity/<int:customer_id>', methods=['GET'])
 def check_sub_validity(customer_id):
     customer = Customer.query.get(customer_id)
@@ -124,7 +125,7 @@ def check_sub_validity(customer_id):
     today = datetime.date.today()
     period = Subscription.query.with_entities(Subscription.period).filter_by(id=customer.subscription_id).first()
 
-    if (today - customer.sub_purchase_date) < period:
+    if timedelta(today - customer.sub_purchase_date) < timedelta(period):
         return jsonify({'msg': 'Subscription is valid'}), 200
     else:
         return jsonify({'msg': 'Subscription is no longer valid'}), 401
