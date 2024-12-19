@@ -2,11 +2,13 @@ from flask import Blueprint, request, jsonify
 from app.models import Gym
 from app import db
 import logging
+from utils import role_required
 
 gym_routes = Blueprint('gym_routes', __name__)
 
 
 @gym_routes.route('/add_gym', methods=['POST'])
+@role_required(["manager"])
 def add_gym():
     data = request.get_json()
 
@@ -48,6 +50,7 @@ def add_gym():
 
 
 @gym_routes.route('/get_gym/<int:gym_id>', methods=['GET'])
+@role_required(["manager", "receptionist", "coach"])
 def get_gym(gym_id):
     try:
         gym = Gym.query.get(gym_id)

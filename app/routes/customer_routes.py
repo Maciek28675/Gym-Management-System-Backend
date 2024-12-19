@@ -3,11 +3,13 @@ from app.models import Customer, Subscription
 from app import db
 import logging
 from datetime import datetime, date, timedelta
+from utils import role_required
 
 customer_routes = Blueprint('customer_routes', __name__)
 
 
 @customer_routes.route('/add_customer', methods=['POST'])
+@role_required(["manager", "receptionist"])
 def add_customer():
     data = request.get_json()
 
@@ -76,6 +78,7 @@ def add_customer():
 
 
 @customer_routes.route('/update_customer/<int:customer_id>', methods=['PUT'])
+@role_required(["manager", "receptionist"])
 def update_customer(customer_id):
     data = request.get_json()
 
@@ -109,6 +112,7 @@ def update_customer(customer_id):
 
 
 @customer_routes.route('/delete_customer/<int:customer_id>', methods=['DELETE'])
+@role_required(["manager", "receptionist"])
 def delete_customer(customer_id):
     try:
         customer = Customer.query.get(customer_id)
@@ -131,6 +135,7 @@ def delete_customer(customer_id):
 
 
 @customer_routes.route('/get_customer/<int:customer_id>', methods=['GET'])
+@role_required(["manager", "receptionist", "coach"])
 def get_customer(customer_id):
     customer = Customer.query.get(customer_id)
     if not customer:
@@ -151,6 +156,7 @@ def get_customer(customer_id):
 
 
 @customer_routes.route('/check_sub_validity/<int:customer_id>', methods=['GET'])
+@role_required(["manager", "receptionist"])
 def check_sub_validity(customer_id):
     customer = Customer.query.get(customer_id)
 

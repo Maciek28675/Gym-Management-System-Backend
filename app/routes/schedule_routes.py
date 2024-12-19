@@ -2,11 +2,12 @@ from flask import Blueprint, request, jsonify
 from app.models import Schedule
 from app import db
 import logging
-
+from utils import role_required
 schedule_routes = Blueprint('schedule_routes', __name__)
 
 
 @schedule_routes.route('/add_schedule', methods=['POST'])
+@role_required(["manager"])
 def add_schedule():
     data = request.get_json()
 
@@ -54,6 +55,7 @@ def add_schedule():
 
 
 @schedule_routes.route('/update_schedule/<int:schedule_id>', methods=['PUT'])
+@role_required(["manager"])
 def update_schedule(schedule_id):
     data = request.get_json()
 
@@ -90,6 +92,7 @@ def update_schedule(schedule_id):
 
 
 @schedule_routes.route('/delete_schedule/<int:schedule_id>', methods=['DELETE'])
+@role_required(["manager"])
 def delete_schedule(schedule_id):
     try:
         schedule = Schedule.query.get(schedule_id)
@@ -109,6 +112,7 @@ def delete_schedule(schedule_id):
 
 
 @schedule_routes.route('/get_schedule/<int:schedule_id>', methods=['GET'])
+@role_required(["manager", "receptionist", "coach"])
 def get_schedule(schedule_id):
     try:
         schedule = Schedule.query.get(schedule_id)

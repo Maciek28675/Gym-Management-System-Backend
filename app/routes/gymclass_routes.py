@@ -3,11 +3,12 @@ from app.models import GymClass, Employee, Gym, Customer, CustomerGymClass
 from app import db
 import logging
 from datetime import datetime
-
+from utils import role_required
 gymclass_routes = Blueprint('gymclass_routes', __name__)
 
 
 @gymclass_routes.route('/add_gymclass', methods=['POST'])
+@role_required(["manager", "receptionist", "coach"])
 def add_gymclass():
     data = request.get_json()
 
@@ -65,6 +66,7 @@ def add_gymclass():
 
 
 @gymclass_routes.route('/update_gymclass/<int:gymclass_id>', methods=['PUT'])
+@role_required(["manager", "receptionist", "coach"])
 def update_gymclass(gymclass_id):
     data = request.get_json()
 
@@ -96,6 +98,7 @@ def update_gymclass(gymclass_id):
 
 
 @gymclass_routes.route('/delete_gymclass/<int:gymclass_id>', methods=['DELETE'])
+@role_required(["manager", "receptionist", "coach"])
 def delete_gymclass(gymclass_id):
     try:
         gymclass = GymClass.query.get(gymclass_id)
@@ -115,6 +118,7 @@ def delete_gymclass(gymclass_id):
 
 
 @gymclass_routes.route('/get_gymclass/<int:gymclass_id>', methods=['GET'])
+@role_required(["manager", "receptionist", "coach"])
 def get_gymclass(gymclass_id):
     try:
         gymclass = GymClass.query.get(gymclass_id)
@@ -140,6 +144,7 @@ def get_gymclass(gymclass_id):
 
 
 @gymclass_routes.route('/enroll_customer/<int:gymclass_id>', methods=['POST'])
+@role_required(["manager", "receptionist", "coach"])
 def enroll_customer(gymclass_id):
     data = request.get_json()
 
@@ -186,6 +191,7 @@ def enroll_customer(gymclass_id):
 
 
 @gymclass_routes.route('/unenroll_customer/<int:gymclass_id>', methods=['POST'])
+@role_required(["manager", "receptionist", "coach"])
 def unenroll_customer(gymclass_id):
     data = request.get_json()
 

@@ -2,11 +2,12 @@ from flask import Blueprint, request, jsonify
 from app.models import Subscription
 from app import db
 import logging
-
+from utils import role_required
 subscription_routes = Blueprint('subscription_routes', __name__)
 
 
 @subscription_routes.route('/add_subscription', methods=['POST'])
+@role_required(["manager"])
 def add_subscription():
     data = request.get_json()
 
@@ -54,6 +55,7 @@ def add_subscription():
 
 
 @subscription_routes.route('/update_subscription/<int:subscription_id>', methods=['PUT'])
+@role_required(["manager"])
 def update_subscription(subscription_id):
     data = request.get_json()
 
@@ -89,6 +91,7 @@ def update_subscription(subscription_id):
 
 
 @subscription_routes.route('/delete_subscription/<int:subscription_id>', methods=['DELETE'])
+@role_required(["manager"])
 def delete_subscription(subscription_id):
     try:
         subscription = Subscription.query.get(subscription_id)
@@ -111,6 +114,7 @@ def delete_subscription(subscription_id):
 
 
 @subscription_routes.route('/get_subscription/<int:subscription_id>', methods=['GET'])
+@role_required(["manager", "receptionist", "coach"])
 def get_subscription(subscription_id):
     try:
         subscription = Subscription.query.get(subscription_id)

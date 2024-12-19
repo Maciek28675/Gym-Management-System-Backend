@@ -3,11 +3,13 @@ from app.models import Product
 from app import db
 import logging
 from decimal import Decimal
+from utils import role_required
 
 product_routes = Blueprint('product_routes', __name__)
 
 
 @product_routes.route('/add_product', methods=['POST'])
+@role_required(["manager", "receptionist"])
 def add_product():
     data = request.get_json()
 
@@ -45,6 +47,7 @@ def add_product():
 
 
 @product_routes.route('/update_product/<int:product_id>', methods=['PUT'])
+@role_required(["manager", "receptionist"])
 def update_product(product_id):
     data = request.get_json()
 
@@ -80,6 +83,7 @@ def update_product(product_id):
 
 
 @product_routes.route('/delete_product/<int:product_id>', methods=['DELETE'])
+@role_required(["manager", "receptionist"])
 def delete_product(product_id):
     try:
         product = Product.query.get(product_id)
@@ -99,6 +103,7 @@ def delete_product(product_id):
 
 
 @product_routes.route('/get_product/<int:product_id>', methods=['GET'])
+@role_required(["manager", "receptionist"])
 def get_product(product_id):
     try:
         product = Product.query.get(product_id)
@@ -124,6 +129,7 @@ def get_product(product_id):
 
 
 @product_routes.route('/sell_product/<int:product_id>', methods=['POST'])
+@role_required(["manager", "receptionist"])
 def sell_product(product_id):
     data = request.get_json()
 
