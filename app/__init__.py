@@ -5,8 +5,16 @@ from flask_jwt_extended import JWTManager
 
 from dotenv import load_dotenv
 from os import getenv
+import logging
 
 load_dotenv()
+
+logging.basicConfig(
+    filename='app.log',
+    filemode='a',
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 
 jwt = JWTManager()
 db = SQLAlchemy()
