@@ -179,3 +179,27 @@ def check_sub_validity(customer_id):
     else:
         logging.info(f"Subscription expired for customer ID {customer_id}")
         return jsonify({'msg': 'Subscription is no longer valid'}), 401
+ 
+    
+@customer_routes.route('/get_all_customers', methods=['GET'])
+@role_required(["manager", "receptionist", "coach"])
+def get_all_customers():
+    try:
+        customers = Customer.query.all()
+        result = [
+            {
+                "customer_id": customer.customer_id,
+                "subscription_id": customer.subscription_id,
+                "first_name": customer.first_name,
+                "last_name": customer.last_name,
+                "address": customer.address,
+                "phone_number": customer.phone_number,
+                "sub_purchase_date": str(customer.sub_purchase_date),
+            }
+            for customer in customers
+        ]
+        logging.info("All customers retrieved successfully")
+        return jsonify(result), 200
+    except Exception as e:
+        logging.error(f"An error occurred while retrieving all customers: {str(e)}")
+        return jsonify({"msg": "An internal error occurred"}), 500

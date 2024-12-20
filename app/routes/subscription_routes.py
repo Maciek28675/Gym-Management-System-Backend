@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from app.models import Subscription
+from app.models import Subscription, Customer
 from app import db
 import logging
 from utils import role_required
@@ -100,10 +100,16 @@ def delete_subscription(subscription_id):
             logging.warning(f"Subscription with ID {subscription_id} does not exist")
             return jsonify({"msg": "Subscription does not exist"}), 404
 
+        customers_with_subscription = Customer.query.filter_by(subscription_id=subscription_id).all()
+        for customer in customers_with_subscription:
+            customer.subscription_id = None
+
+        db.session.commit()
+
         db.session.delete(subscription)
         db.session.commit()
 
-        logging.info(f"Subscription deleted successfully: ID {subscription_id}")
+        logging.info(f"Subscription {subscription_id} and associated customer links cleared successfully")
         return jsonify({"msg": "Subscription deleted successfully"}), 200
     
     except Exception as e:
@@ -135,4 +141,25 @@ def get_subscription(subscription_id):
     
     except Exception as e:
         logging.error(f"An error occurred while retrieving subscription: {str(e)}")
+        return jsonify({"msg": "An internal error occurred"}), 500
+
+
+@subscription_routes.route('/get_all_subscriptions', methods=['GET'])
+@role_required(["manager", "receptionist", "coach"])
+def get_all_subscriptions():
+    try:
+        subscriptions = Subscription.query.all()
+        result = [
+            {
+                "subscription_id": subscription.subscription_id,
+                "type": subscription.type,
+                "price": float(subscription.price),
+                "period": subscription.period,
+            }
+            for subscription in subscriptions
+        ]
+        logging.info("All subscriptions retrieved successfully")
+        return jsonify(result), 200
+    except Exception as e:
+        logging.error(f"An error occurred while retrieving all subscriptions: {str(e)}")
         return jsonify({"msg": "An internal error occurred"}), 500

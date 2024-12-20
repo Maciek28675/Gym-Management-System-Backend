@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from app.models import Gym
+from app.models import Gym, Employee, Product, GymClass, Schedule
 from app import db
 import logging
 from utils import role_required
@@ -49,6 +49,61 @@ def add_gym():
         return jsonify({"msg": "An internal error occurred"}), 500
 
 
+@gym_routes.route('/update_gym/<int:gym_id>', methods=['PUT'])
+@role_required(["manager"])
+def update_gym(gym_id):
+    data = request.get_json()
+
+    if not data:
+        logging.error("No data provided for updating gym")
+        return jsonify({"msg": "No data provided"}), 400
+
+    gym = Gym.query.get(gym_id)
+    if not gym:
+        logging.warning(f"Gym with ID {gym_id} does not exist")
+        return jsonify({"msg": "Gym does not exist"}), 404
+
+    allowed_fields = {'name', 'address'}
+    for key, value in data.items():
+        if key not in allowed_fields:
+            logging.error(f"Field '{key}' is not allowed for update")
+            return jsonify({"msg": f"Field '{key}' is not allowed for update"}), 400
+        setattr(gym, key, value)
+
+    try:
+        db.session.commit()
+        logging.info(f"Gym {gym_id} updated successfully")
+        return jsonify({"msg": "Gym updated successfully"}), 200
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"An error occurred while updating gym {gym_id}: {str(e)}")
+        return jsonify({"msg": "An internal error occurred"}), 500
+
+
+@gym_routes.route('/delete_gym/<int:gym_id>', methods=['DELETE'])
+@role_required(["manager"])
+def delete_gym(gym_id):
+    try:
+        gym = Gym.query.get(gym_id)
+        if not gym:
+            logging.warning(f"Gym with ID {gym_id} does not exist")
+            return jsonify({"msg": "Gym does not exist"}), 404
+
+        Employee.query.filter_by(gym_id=gym_id).update({Employee.gym_id: None})
+        Product.query.filter_by(gym_id=gym_id).update({Product.gym_id: None})
+        GymClass.query.filter_by(gym_id=gym_id).update({GymClass.gym_id: None})
+        Schedule.query.filter_by(gym_id=gym_id).update({Schedule.gym_id: None})
+
+        db.session.delete(gym)
+        db.session.commit()
+        logging.info(f"Gym {gym_id} deleted successfully")
+        return jsonify({"msg": "Gym deleted successfully"}), 200
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"An error occurred while deleting gym {gym_id}: {str(e)}")
+        return jsonify({"msg": "An internal error occurred"}), 500
+
+
 @gym_routes.route('/get_gym/<int:gym_id>', methods=['GET'])
 @role_required(["manager", "receptionist", "coach"])
 def get_gym(gym_id):
@@ -67,4 +122,23 @@ def get_gym(gym_id):
         return jsonify(result), 200
     except Exception as e:
         logging.error(f"An error occurred while retrieving gym: {str(e)}")
+        return jsonify({"msg": "An internal error occurred"}), 500
+
+
+@gym_routes.route('/get_all_gyms', methods=['GET'])
+@role_required(["manager", "receptionist", "coach"])
+def get_all_gyms():
+    try:
+        gyms = Gym.query.all()
+        result = [
+            {
+                "gym_id": gym.gym_id,
+                "name": gym.name,
+                "address": gym.address,
+            } for gym in gyms
+        ]
+        logging.info("All gyms retrieved successfully")
+        return jsonify(result), 200
+    except Exception as e:
+        logging.error(f"An error occurred while retrieving all gyms: {str(e)}")
         return jsonify({"msg": "An internal error occurred"}), 500

@@ -1,9 +1,12 @@
 from flask import Blueprint, request, jsonify
-from app.models import Employee
+from app.models import Employee, GymClass
 from app import db
 import logging
 from utils import role_required
+
 employee_routes = Blueprint('employee_routes', __name__)
+
+ALLOWED_ROLES = ["manager", "receptionist", "coach"]
 
 
 @employee_routes.route('/update_employee/<int:employee_id>', methods=['PUT'])
@@ -23,6 +26,19 @@ def update_employee(employee_id):
 
     allowed_fields = {'password', 'gym_id', 'first_name', 'last_name', 'role'}
 
+    # Check if the role is being changed from 'coach' to another role
+    if 'role' in data and data['role'] != employee.role and employee.role == 'coach':
+        try:
+            gym_classes = GymClass.query.filter_by(employee_id=employee_id).all()
+            for gym_class in gym_classes:
+                gym_class.employee_id = None  # Remove the employee as the coach
+            db.session.commit()
+            logging.info(f"Employee {employee_id} removed from all gym classes they were coaching")
+        except Exception as e:
+            db.session.rollback()
+            logging.error(f"An error occurred while removing employee {employee_id} from gym classes: {str(e)}")
+            return jsonify({"msg": "An internal error occurred while updating gym classes"}), 500
+
     for key, value in data.items():
         if key not in allowed_fields:
             logging.error(f"Field '{key}' is not allowed for update")
@@ -32,6 +48,10 @@ def update_employee(employee_id):
             logging.warning("Password length validation failed")
             return jsonify({"msg": "Password must be at least 8 characters long"}), 400
 
+        if key == 'role' and value not in ALLOWED_ROLES:
+            logging.error(f"Invalid role provided: {value}")
+            return jsonify({"msg": f"Invalid role. Allowed roles are: {', '.join(ALLOWED_ROLES)}"}), 400
+
         setattr(employee, key, value)
 
     try:
@@ -39,11 +59,11 @@ def update_employee(employee_id):
         logging.info(f"Employee updated successfully: ID {employee_id}")
 
         return jsonify({"msg": "Employee updated successfully"}), 200
-    
+
     except Exception as e:
         db.session.rollback()
         logging.error(f"An error occurred while updating an employee: {str(e)}")
-        
+
         return jsonify({"msg": "An internal error occurred"}), 500
 
 
@@ -83,3 +103,25 @@ def get_employee(employee_id):
     }
     logging.info(f"Employee retrieved successfully: ID {employee_id}")
     return jsonify(result), 200
+
+
+@employee_routes.route('/get_all_employees', methods=['GET'])
+@role_required(["manager"])
+def get_all_employees():
+    try:
+        employees = Employee.query.all()
+        result = [
+            {
+                "employee_id": employee.employee_id,
+                "gym_id": employee.gym_id,
+                "first_name": employee.first_name,
+                "last_name": employee.last_name,
+                "role": employee.role,
+            }
+            for employee in employees
+        ]
+        logging.info("All employees retrieved successfully")
+        return jsonify(result), 200
+    except Exception as e:
+        logging.error(f"An error occurred while retrieving all employees: {str(e)}")
+        return jsonify({"msg": "An internal error occurred"}), 500

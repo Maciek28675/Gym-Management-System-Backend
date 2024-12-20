@@ -4,7 +4,7 @@ from sqlalchemy import Date
 
 class Employee(db.Model):
     employee_id = db.Column(db.Integer, primary_key=True)
-    gym_id = db.Column(db.Integer, db.ForeignKey('gym.gym_id'), nullable=False)
+    gym_id = db.Column(db.Integer, db.ForeignKey('gym.gym_id'), nullable=True) # Allow null
     first_name = db.Column(db.String(50), nullable=False)
     last_name = db.Column(db.String(50), nullable=False)
     role = db.Column(db.String(50), nullable=False)
@@ -18,7 +18,7 @@ class Employee(db.Model):
 
 class Customer(db.Model):
     customer_id = db.Column(db.Integer, primary_key=True)
-    subscription_id = db.Column(db.Integer, db.ForeignKey('subscription.subscription_id'))
+    subscription_id = db.Column(db.Integer, db.ForeignKey('subscription.subscription_id'), nullable=True) # Allow null
     first_name = db.Column(db.String(50), nullable=False)
     last_name = db.Column(db.String(50), nullable=False)
     address = db.Column(db.Text)
@@ -54,7 +54,7 @@ class Gym(db.Model):
 class Schedule(db.Model):
     schedule_id = db.Column(db.Integer, primary_key=True)
     gymclass_id = db.Column(db.Integer, db.ForeignKey('gym_class.gymclass_id'))
-    gym_id = db.Column(db.Integer, db.ForeignKey('gym.gym_id'), nullable=False)
+    gym_id = db.Column(db.Integer, db.ForeignKey('gym.gym_id'), nullable=True) # Allow null
     employee_id = db.Column(db.Integer, db.ForeignKey('employee.employee_id'))
     day_otw = db.Column(db.String(15), nullable=False)
     start_time = db.Column(db.Time, nullable=False)
@@ -69,7 +69,7 @@ class Schedule(db.Model):
 
 class Product(db.Model):
     product_id = db.Column(db.Integer, primary_key=True)
-    gym_id = db.Column(db.Integer, db.ForeignKey('gym.gym_id'), nullable=False)
+    gym_id = db.Column(db.Integer, db.ForeignKey('gym.gym_id'), nullable=True) # Allow null
     name = db.Column(db.String(50), nullable=False)
     quantity_in_stock = db.Column(db.Integer, default=0)
     quantity_sold = db.Column(db.Integer, default=0)
@@ -82,8 +82,8 @@ class Product(db.Model):
 
 class GymClass(db.Model):
     gymclass_id = db.Column(db.Integer, primary_key=True)
-    employee_id = db.Column(db.Integer, db.ForeignKey('employee.employee_id'), nullable=False)
-    gym_id = db.Column(db.Integer, db.ForeignKey('gym.gym_id'), nullable=False)
+    employee_id = db.Column(db.Integer, db.ForeignKey('employee.employee_id'), nullable=True) # Allow null
+    gym_id = db.Column(db.Integer, db.ForeignKey('gym.gym_id'), nullable=True) # Allow null
     name = db.Column(db.String(50), nullable=False)
     max_people = db.Column(db.Integer, nullable=False)
     time = db.Column(db.Time, nullable=False)

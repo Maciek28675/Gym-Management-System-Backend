@@ -134,3 +134,28 @@ def get_schedule(schedule_id):
     except Exception as e:
         logging.error(f"An error occurred while retrieving schedule {schedule_id}: {str(e)}")
         return jsonify({"msg": "An internal error occurred"}), 500
+    
+
+@schedule_routes.route('/get_all_schedules', methods=['GET'])
+@role_required(["manager", "receptionist", "coach"])
+def get_all_schedules():
+    try:
+        schedules = Schedule.query.all()
+        result = [
+            {
+                "schedule_id": schedule.schedule_id,
+                "gymclass_id": schedule.gymclass_id,
+                "gym_id": schedule.gym_id,
+                "employee_id": schedule.employee_id,
+                "day_otw": schedule.day_otw,
+                "start_time": str(schedule.start_time),
+                "end_time": str(schedule.end_time),
+                "entry_type": schedule.entry_type,
+            }
+            for schedule in schedules
+        ]
+        logging.info("All schedules retrieved successfully")
+        return jsonify(result), 200
+    except Exception as e:
+        logging.error(f"An error occurred while retrieving all schedules: {str(e)}")
+        return jsonify({"msg": "An internal error occurred"}), 500

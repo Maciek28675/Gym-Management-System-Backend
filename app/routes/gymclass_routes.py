@@ -218,3 +218,28 @@ def unenroll_customer(gymclass_id):
         db.session.rollback()
         logging.error(f"An error occurred during unenrollment: {str(e)}")
         return jsonify({"msg": "An internal error occurred"}), 500
+
+
+@gymclass_routes.route('/get_all_gymclasses', methods=['GET'])
+@role_required(["manager", "receptionist", "coach"])
+def get_all_gymclasses():
+    try:
+        gymclasses = GymClass.query.all()
+        result = [
+            {
+                "gymclass_id": gymclass.gymclass_id,
+                "employee_id": gymclass.employee_id,
+                "gym_id": gymclass.gym_id,
+                "name": gymclass.name,
+                "max_people": gymclass.max_people,
+                "time": str(gymclass.time),
+                "day_otw": gymclass.day_otw,
+                "signed_people": gymclass.signed_people,
+            }
+            for gymclass in gymclasses
+        ]
+        logging.info("All gym classes retrieved successfully")
+        return jsonify(result), 200
+    except Exception as e:
+        logging.error(f"An error occurred while retrieving all gym classes: {str(e)}")
+        return jsonify({"msg": "An internal error occurred"}), 500

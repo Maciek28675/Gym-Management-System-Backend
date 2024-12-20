@@ -160,3 +160,27 @@ def sell_product(product_id):
         db.session.rollback()
         logging.error(f"An error occurred during product sale for Product {product_id}: {str(e)}")
         return jsonify({"msg": "An internal error occurred"}), 500
+
+
+@product_routes.route('/get_all_products', methods=['GET'])
+@role_required(["manager", "receptionist"])
+def get_all_products():
+    try:
+        products = Product.query.all()
+        result = [
+            {
+                "product_id": product.product_id,
+                "gym_id": product.gym_id,
+                "name": product.name,
+                "quantity_in_stock": product.quantity_in_stock,
+                "quantity_sold": product.quantity_sold,
+                "price": float(product.price),
+                "total_revenue": float(product.total_revenue),
+            }
+            for product in products
+        ]
+        logging.info("All products retrieved successfully")
+        return jsonify(result), 200
+    except Exception as e:
+        logging.error(f"An error occurred while retrieving all products: {str(e)}")
+        return jsonify({"msg": "An internal error occurred"}), 500
