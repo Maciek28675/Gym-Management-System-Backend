@@ -100,6 +100,13 @@ def update_customer(customer_id):
         
         setattr(customer, key, value)
 
+    if 'sub_purchase_date' in data and data['sub_purchase_date'] is not None:
+        try:
+            data['sub_purchase_date'] = datetime.strptime(data['sub_purchase_date'], '%Y-%m-%d')
+        except ValueError:
+            logging.error("Invalid date format for sub_purchase_date")
+            return jsonify({"msg": "sub_purchase_date must be in the format 'YYYY-MM-DD'"}), 400
+        
     try:
         db.session.commit()
         logging.info(f"Customer updated successfully: ID {customer_id}")

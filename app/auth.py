@@ -37,6 +37,9 @@ def first_register():
         logging.error("Invalid role provided for 'first_register'. First user must be a manager.")
         return jsonify({"msg": "The first user must have the role 'manager'"}), 400
 
+    if len(data['password'])< 8:
+        logging.error("Password too short")
+        return jsonify({"msg": "password too short"}), 400
 
     try:
         bytes_password = data['password'].encode('utf-8')
@@ -77,6 +80,10 @@ def register():
         if field not in data:
             logging.error(f"Missing required field in 'register': {field}")
             return jsonify({"msg": f"Field '{field}' is required"}), 400
+    
+    if len(data['password'])< 8:
+        logging.error("Password too short")
+        return jsonify({"msg": "password too short"}), 400
     
     try:
         bytes_password = data['password'].encode('utf-8')
