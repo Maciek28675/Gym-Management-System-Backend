@@ -1,11 +1,11 @@
 from flask import Blueprint, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, get_jwt
 import bcrypt
 import logging
 from .models import Employee
 from . import db
-from utils import role_required
+from utils import role_required, check_gym_mismatch
 
 logging.basicConfig(level=logging.ERROR)
 
@@ -77,7 +77,7 @@ def register():
         if field not in data:
             logging.error(f"Missing required field in 'register': {field}")
             return jsonify({"msg": f"Field '{field}' is required"}), 400
-
+    
     try:
         bytes_password = data['password'].encode('utf-8')
         salt = bcrypt.gensalt()

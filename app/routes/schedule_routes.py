@@ -3,6 +3,7 @@ from app.models import Schedule
 from app import db
 import logging
 from utils import role_required
+from flask_jwt_extended import get_jwt
 schedule_routes = Blueprint('schedule_routes', __name__)
 
 
@@ -22,6 +23,13 @@ def add_schedule():
             logging.error(f"Missing required field: {field}")
             return jsonify({"msg": f"Field '{field}' is required"}), 400
 
+    jwt_payload = get_jwt()
+    user_gym_id = jwt_payload.get('gym_id')
+
+    if user_gym_id != data['gym_id']:
+        logging.warning("You are not authorized to modify this gym")
+        return jsonify({"msg": "You are not authorized to modify this gym"}), 403
+    
     if 'employee_id' not in data and 'gymclass_id' not in data:
         logging.error("Either employee_id or gymclass_id must be provided")
         return jsonify({"msg": "Either employee_id or gymclass_id must be provided"}), 400
@@ -69,7 +77,7 @@ def update_schedule(schedule_id):
         logging.error(f"Schedule with ID {schedule_id} does not exist")
         return jsonify({"msg": "Schedule does not exist"}), 404
 
-    allowed_fields = {'gymclass_id', 'gym_id', 'employee_id', 'day_otw', 'start_time', 'end_time'}
+    allowed_fields = {'gymclass_id', 'employee_id', 'day_otw', 'start_time', 'end_time'}
 
     for key, value in data.items():
         if key not in allowed_fields:
@@ -100,8 +108,16 @@ def delete_schedule(schedule_id):
             logging.error(f"Schedule with ID {schedule_id} does not exist")
             return jsonify({"msg": "Schedule does not exist"}), 404
 
+        jwt_payload = get_jwt()
+        user_gym_id = jwt_payload.get('gym_id')
+
+        if user_gym_id != schedule.gym_id:
+            logging.warning("You are not authorized to modify this gym")
+            return jsonify({"msg": "You are not authorized to modify this gym"}), 403
+    
         db.session.delete(schedule)
         db.session.commit()
+        
         logging.info(f"Schedule {schedule_id} deleted successfully")
         return jsonify({"msg": "Schedule deleted successfully"}), 200
 

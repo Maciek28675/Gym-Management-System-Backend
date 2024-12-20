@@ -3,6 +3,7 @@ from app.models import GymClass, Employee, Gym, Customer, CustomerGymClass
 from app import db
 import logging
 from datetime import datetime
+from flask_jwt_extended import get_jwt
 from utils import role_required
 gymclass_routes = Blueprint('gymclass_routes', __name__)
 
@@ -22,6 +23,13 @@ def add_gymclass():
         if field not in data:
             logging.error(f"Missing required field: {field}")
             return jsonify({"msg": f"Field '{field}' is required"}), 400
+    
+    jwt_payload = get_jwt()
+    user_gym_id = jwt_payload.get('gym_id')
+
+    if user_gym_id != data['gym_id']:
+        logging.warning("You are not authorized to modify this gym")
+        return jsonify({"msg": "You are not authorized to modify this gym"}), 403
     
     try:
         is_time_valid = datetime.strptime(data['time'], "%H:%M:%S")
@@ -79,7 +87,7 @@ def update_gymclass(gymclass_id):
         logging.warning(f"Gym class with ID {gymclass_id} does not exist")
         return jsonify({"msg": "Gym class does not exist"}), 404
 
-    allowed_fields = {'employee_id', 'gym_id', 'name', 'max_people', 'time', 'day_otw', 'signed_people'}
+    allowed_fields = {'employee_id', 'name', 'max_people', 'time', 'day_otw', 'signed_people'}
     for key, value in data.items():
         if key not in allowed_fields:
             logging.warning(f"Field '{key}' is not allowed for update")
@@ -102,6 +110,14 @@ def update_gymclass(gymclass_id):
 def delete_gymclass(gymclass_id):
     try:
         gymclass = GymClass.query.get(gymclass_id)
+
+        jwt_payload = get_jwt()
+        user_gym_id = jwt_payload.get('gym_id')
+
+        if user_gym_id != gymclass.gym_id:
+            logging.warning("You are not authorized to modify this gym")
+            return jsonify({"msg": "You are not authorized to modify this gym"}), 403
+    
         if not gymclass:
             logging.warning(f"Gym class with ID {gymclass_id} does not exist")
             return jsonify({"msg": "Gym class does not exist"}), 404
@@ -166,6 +182,13 @@ def enroll_customer(gymclass_id):
         logging.warning(f"Gym class with ID {gymclass_id} does not exist")
         return jsonify({"msg": "Gym class does not exist"}), 404
 
+    jwt_payload = get_jwt()
+    user_gym_id = jwt_payload.get('gym_id')
+
+    if user_gym_id !=  gym_class.gym_id:
+        logging.warning("You are not authorized to modify this gym")
+        return jsonify({"msg": "You are not authorized to modify this gym"}), 403
+    
     if gym_class.signed_people >= gym_class.max_people:
         logging.warning(f"Gym class ID {gymclass_id} is full")
         return jsonify({"msg": "No available spots in this class"}), 400
@@ -208,6 +231,14 @@ def unenroll_customer(gymclass_id):
 
     try:
         gym_class = GymClass.query.get(gymclass_id)
+
+        jwt_payload = get_jwt()
+        user_gym_id = jwt_payload.get('gym_id')
+
+        if user_gym_id != gym_class.gym_id:
+            logging.warning("You are not authorized to modify this gym")
+            return jsonify({"msg": "You are not authorized to modify this gym"}), 403
+    
         gym_class.signed_people -= 1
         db.session.delete(enrollment)
         db.session.commit()

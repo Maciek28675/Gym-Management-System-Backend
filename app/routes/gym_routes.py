@@ -3,6 +3,7 @@ from app.models import Gym, Employee, Product, GymClass, Schedule
 from app import db
 import logging
 from utils import role_required
+from flask_jwt_extended import get_jwt
 
 gym_routes = Blueprint('gym_routes', __name__)
 
@@ -63,6 +64,13 @@ def update_gym(gym_id):
         logging.warning(f"Gym with ID {gym_id} does not exist")
         return jsonify({"msg": "Gym does not exist"}), 404
 
+    jwt_payload = get_jwt()
+    user_gym_id = jwt_payload.get('gym_id')
+
+    if user_gym_id != data['gym_id']:
+        logging.warning("You are not authorized to modify this gym")
+        return jsonify({"msg": "You are not authorized to modify this gym"}), 403
+    
     allowed_fields = {'name', 'address'}
     for key, value in data.items():
         if key not in allowed_fields:
@@ -89,6 +97,13 @@ def delete_gym(gym_id):
             logging.warning(f"Gym with ID {gym_id} does not exist")
             return jsonify({"msg": "Gym does not exist"}), 404
 
+        jwt_payload = get_jwt()
+        user_gym_id = jwt_payload.get('gym_id')
+
+        if user_gym_id != gym.gym_id:
+            logging.warning("You are not authorized to modify this gym")
+            return jsonify({"msg": "You are not authorized to modify this gym"}), 403
+    
         Employee.query.filter_by(gym_id=gym_id).update({Employee.gym_id: None})
         Product.query.filter_by(gym_id=gym_id).update({Product.gym_id: None})
         GymClass.query.filter_by(gym_id=gym_id).update({GymClass.gym_id: None})

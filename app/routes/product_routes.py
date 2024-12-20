@@ -4,6 +4,7 @@ from app import db
 import logging
 from decimal import Decimal
 from utils import role_required
+from flask_jwt_extended import get_jwt
 
 product_routes = Blueprint('product_routes', __name__)
 
@@ -23,6 +24,13 @@ def add_product():
         if field not in data:
             logging.error(f"Missing required field: {field}")
             return jsonify({"msg": f"Field '{field}' is required"}), 400
+        
+    jwt_payload = get_jwt()
+    user_gym_id = jwt_payload.get('gym_id')
+
+    if user_gym_id != data['gym_id']:
+        logging.warning("You are not authorized to modify this gym")
+        return jsonify({"msg": "You are not authorized to modify this gym"}), 403
 
     try:
         new_product = Product(
@@ -61,7 +69,7 @@ def update_product(product_id):
         logging.error(f"Product with ID {product_id} does not exist")
         return jsonify({"msg": "Product does not exist"}), 404
 
-    allowed_fields = {'gym_id', 'name', 'quantity_in_stock', 'price', 'total_revenue'}
+    allowed_fields = {'name', 'quantity_in_stock', 'price', 'total_revenue'}
 
     for key, value in data.items():
         if key not in allowed_fields:
@@ -90,6 +98,13 @@ def delete_product(product_id):
         if not product:
             logging.error(f"Product with ID {product_id} does not exist")
             return jsonify({"msg": "Product does not exist"}), 404
+        
+        jwt_payload = get_jwt()
+        user_gym_id = jwt_payload.get('gym_id')
+
+        if user_gym_id != product.gym_id:
+            logging.warning("You are not authorized to modify this gym")
+            return jsonify({"msg": "You are not authorized to modify this gym"}), 403
 
         db.session.delete(product)
         db.session.commit()
@@ -143,6 +158,13 @@ def sell_product(product_id):
         logging.error(f"Product with ID {product_id} does not exist")
         return jsonify({"msg": "Product does not exist"}), 404
 
+    jwt_payload = get_jwt()
+    user_gym_id = jwt_payload.get('gym_id')
+
+    if user_gym_id != product.gym_id:
+        logging.warning("You are not authorized to modify this gym")
+        return jsonify({"msg": "You are not authorized to modify this gym"}), 403
+    
     if product.quantity_in_stock < data['quantity_sold']:
         logging.error(f"Not enough stock for Product {product_id}")
         return jsonify({"msg": "Not enough stock available"}), 400
