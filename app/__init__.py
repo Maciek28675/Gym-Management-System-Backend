@@ -2,6 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
+from flask_cors import CORS
 
 from dotenv import load_dotenv
 from os import getenv
@@ -29,13 +30,16 @@ def create_database(app):
 
 def create_app():
     app = Flask(__name__)
+    
+    CORS(app)
+    CORS(app, origins=["http://localhost:5173"])
 
-    app.config['SECRET_KEY'] = 'chudeszczury1'
+    app.config['SECRET_KEY'] = 'secret'
     app.config['SQLALCHEMY_DATABASE_URI'] = getenv('DATABASE_URL')
 
     db.init_app(app)
 
-    app.config['JWT_SECRET_KEY'] = 'chudeszczury2'
+    app.config['JWT_SECRET_KEY'] = 'secret'
     app.config['JWT_TOKEN_LOCATION'] = ['headers']
     
     jwt.init_app(app)

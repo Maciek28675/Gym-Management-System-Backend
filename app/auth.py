@@ -140,7 +140,7 @@ def login():
                     identity=str(user.employee_id),
                     additional_claims={"role": user.role, "gym_id": gym_id}
                 )
-                logging.info(f"User {employee_id} logged in successfully at gym {gym_id}")
+                logging.info(f"User {employee_id} logged in successfully at gym {gym_id}. Issued JWT: {access_token}")
                 return jsonify({'message': 'Login Success', 'access_token': access_token}), 200
             else:
                 logging.warning(f"Failed login attempt for employee_id: {employee_id} at gym {gym_id}")
