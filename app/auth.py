@@ -129,6 +129,7 @@ def login():
     password = data['password']
     gym_id = data['gym_id']
 
+
     try:
         user = Employee.query.filter_by(employee_id=employee_id, gym_id=gym_id).first()
         if user:
@@ -138,7 +139,7 @@ def login():
             if bcrypt.checkpw(bytes_password, user_bytes):
                 access_token = create_access_token(
                     identity=str(user.employee_id),
-                    additional_claims={"role": user.role, "gym_id": gym_id}
+                    additional_claims={"role": user.role, "gym_id": gym_id, "first_name": user.first_name, "last_name": user.last_name}
                 )
                 logging.info(f"User {employee_id} logged in successfully at gym {gym_id}. Issued JWT: {access_token}")
                 return jsonify({'message': 'Login Success', 'access_token': access_token}), 200

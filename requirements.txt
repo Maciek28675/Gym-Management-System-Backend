@@ -8,3 +8,4 @@ python-dotenv
 flask-jwt-extended
 flask-bcrypt
 Flask-Migrate
+flask-cors

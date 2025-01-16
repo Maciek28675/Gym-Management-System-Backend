@@ -172,7 +172,13 @@ def check_sub_validity(customer_id):
         return jsonify({"msg": "Customer does not exist"}), 404
     
     today = date.today()
+
+    if customer.subscription_id == None:
+        logging.warning(f"Subscription is null")
+        return jsonify({"msg": "Customer doesn't have purchased subscription"}), 404
+    
     subscription = Subscription.query.filter_by(subscription_id=customer.subscription_id).first()
+
     if not subscription:
         logging.warning(f"Subscription with ID {customer.subscription_id} does not exist")
         return jsonify({"msg": "Subscription does not exist"}), 404
