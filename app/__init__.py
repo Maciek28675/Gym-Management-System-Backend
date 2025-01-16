@@ -6,6 +6,7 @@ from flask_cors import CORS
 
 from dotenv import load_dotenv
 from os import getenv
+from datetime import timedelta
 import logging
 
 load_dotenv()
@@ -41,6 +42,8 @@ def create_app():
 
     app.config['JWT_SECRET_KEY'] = 'secret'
     app.config['JWT_TOKEN_LOCATION'] = ['headers']
+    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=15)
+    app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(days=30)
     
     jwt.init_app(app)
 

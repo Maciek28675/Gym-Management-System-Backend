@@ -81,7 +81,7 @@ def register():
             logging.error(f"Missing required field in 'register': {field}")
             return jsonify({"msg": f"Field '{field}' is required"}), 400
     
-    if len(data['password'])< 8:
+    if len(data['password'])< 4:
         logging.error("Password too short")
         return jsonify({"msg": "password too short"}), 400
     

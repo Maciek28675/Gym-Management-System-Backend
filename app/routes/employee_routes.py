@@ -118,7 +118,12 @@ def get_employee(employee_id):
 @role_required(["manager"])
 def get_all_employees():
     try:
-        employees = Employee.query.all()
+
+        limit = request.args.get('limit', 5, type=int)
+        offset = request.args.get('offset', 0, type=int)
+
+        employees = Employee.query.order_by(Employee.employee_id).limit(limit).offset(offset).all()
+        
         result = [
             {
                 "employee_id": employee.employee_id,
