@@ -144,7 +144,10 @@ def get_gym(gym_id):
 @role_required(["manager", "receptionist", "coach"])
 def get_all_gyms():
     try:
-        gyms = Gym.query.all()
+        limit = request.args.get('limit', 5, type=int)
+        offset = request.args.get('offset', 0, type=int)
+
+        gyms = Gym.query.order_by(Gym.gym_id).limit(limit).offset(offset).all()
         result = [
             {
                 "gym_id": gym.gym_id,

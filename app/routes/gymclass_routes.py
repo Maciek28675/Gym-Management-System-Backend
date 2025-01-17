@@ -255,7 +255,11 @@ def unenroll_customer(gymclass_id):
 @role_required(["manager", "receptionist", "coach"])
 def get_all_gymclasses():
     try:
-        gymclasses = GymClass.query.all()
+        limit = request.args.get('limit', 5, type=int)
+        offset = request.args.get('offset', 0, type=int)
+
+        gymclasses = GymClass.query.order_by(GymClass.gymclass_id).limit(limit).offset(offset).all()
+        
         result = [
             {
                 "gymclass_id": gymclass.gymclass_id,

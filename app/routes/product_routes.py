@@ -188,7 +188,11 @@ def sell_product(product_id):
 @role_required(["manager", "receptionist"])
 def get_all_products():
     try:
-        products = Product.query.all()
+
+        limit = request.args.get('limit', 5, type=int)
+        offset = request.args.get('offset', 0, type=int)
+
+        products = Product.query.order_by(Product.product_id).limit(limit).offset(offset).all()
         result = [
             {
                 "product_id": product.product_id,

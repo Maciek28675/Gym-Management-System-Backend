@@ -198,7 +198,10 @@ def check_sub_validity(customer_id):
 @role_required(["manager", "receptionist", "coach"])
 def get_all_customers():
     try:
-        customers = Customer.query.all()
+        limit = request.args.get('limit', 5, type=int)
+        offset = request.args.get('offset', 0, type=int)
+
+        customers = Customer.query.order_by(Customer.customer_id).limit(limit).offset(offset).all()
         result = [
             {
                 "customer_id": customer.customer_id,
