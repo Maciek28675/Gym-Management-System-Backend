@@ -77,7 +77,7 @@ def update_schedule(schedule_id):
         logging.error(f"Schedule with ID {schedule_id} does not exist")
         return jsonify({"msg": "Schedule does not exist"}), 404
 
-    allowed_fields = {'gymclass_id', 'employee_id', 'day_otw', 'start_time', 'end_time'}
+    allowed_fields = {'gymclass_id', 'employee_id', 'day_otw', 'start_time', 'end_time', 'entry_type'}
 
     for key, value in data.items():
         if key not in allowed_fields:
@@ -131,6 +131,7 @@ def delete_schedule(schedule_id):
 @role_required(["manager", "receptionist", "coach"])
 def get_schedule(schedule_id):
     try:
+        
         schedule = Schedule.query.get(schedule_id)
         if not schedule:
             logging.error(f"Schedule with ID {schedule_id} does not exist")
@@ -158,8 +159,11 @@ def get_all_schedules():
     try:
         jwt_payload = get_jwt()
         user_gym_id = jwt_payload.get('gym_id')
+        
+        limit = request.args.get('limit', 5, type=int)
+        offset = request.args.get('offset', 0, type=int)
 
-        schedules = Schedule.query.filter_by(gym_id=user_gym_id).all()
+        schedules = Schedule.query.order_by(Schedule.schedule_id).filter_by(gym_id=user_gym_id).limit(limit).offset(offset).all()
 
         result = [
             {
