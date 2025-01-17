@@ -18,7 +18,7 @@ def update_employee(employee_id):
     if not data:
         logging.error("No data provided for updating an employee")
         return jsonify({"msg": "No data provided"}), 400
-
+    
     employee = Employee.query.get(employee_id)
 
     if not employee:

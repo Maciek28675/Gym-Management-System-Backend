@@ -156,7 +156,11 @@ def get_schedule(schedule_id):
 @role_required(["manager", "receptionist", "coach"])
 def get_all_schedules():
     try:
-        schedules = Schedule.query.all()
+        jwt_payload = get_jwt()
+        user_gym_id = jwt_payload.get('gym_id')
+
+        schedules = Schedule.query.filter_by(gym_id=user_gym_id).all()
+
         result = [
             {
                 "schedule_id": schedule.schedule_id,
