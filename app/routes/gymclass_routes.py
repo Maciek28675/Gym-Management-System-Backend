@@ -32,11 +32,11 @@ def add_gymclass():
         return jsonify({"msg": "You are not authorized to modify this gym"}), 403
     
     try:
-        is_time_valid = datetime.strptime(data['time'], "%H:%M:%S")
+        is_time_valid = datetime.strptime(data['time'], "%H:%M")
     except ValueError:
-        logging.error("Time has to be in format HH:MM:SS")
-        return jsonify({"msg": "Wrong time format (HH:MM:SS expected)"}), 400
-    
+        logging.error("Time has to be in format HH:MM")
+        return jsonify({"msg": "Wrong time format (HH:MM expected)"}), 400
+        
     try:
         employee = Employee.query.get(data['employee_id'])
 
