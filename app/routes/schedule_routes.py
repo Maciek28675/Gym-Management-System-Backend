@@ -77,6 +77,10 @@ def update_schedule(schedule_id):
         logging.error(f"Schedule with ID {schedule_id} does not exist")
         return jsonify({"msg": "Schedule does not exist"}), 404
 
+    if 'employee_id' in data and 'gymclass_id' in data:
+        logging.error("Cannot enter both employee_id and gymclass_id as a schedule enetry")
+        return jsonify({"msg": "Cannot enter both employee_id and gymclass_id as a schedule enetry"}), 400
+    
     allowed_fields = {'gymclass_id', 'employee_id', 'day_otw', 'start_time', 'end_time', 'entry_type'}
 
     for key, value in data.items():
