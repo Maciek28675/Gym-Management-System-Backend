@@ -164,11 +164,11 @@ def get_gymclass(gymclass_id):
 def enroll_customer(gymclass_id):
     data = request.get_json()
 
-    if 'customer_id' not in data:
+    if 'customerID' not in data:
         logging.warning("Customer ID is required for enrollment")
         return jsonify({"msg": "Customer ID is required"}), 400
 
-    customer_id = data['customer_id']
+    customer_id = data['customerID']
 
     customer = Customer.query.get(customer_id)
 

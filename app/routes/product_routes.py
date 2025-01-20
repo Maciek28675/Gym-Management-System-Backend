@@ -143,17 +143,19 @@ def get_product(product_id):
         return jsonify({"msg": "An internal error occurred"}), 500
 
 
-@product_routes.route('/sell_product/<int:product_id>', methods=['POST'])
+@product_routes.route('/sell_product/<int:product_id>', methods=['PUT'])
 @role_required(["manager", "receptionist"])
 def sell_product(product_id):
     data = request.get_json()
 
-    if 'quantity_sold' not in data or not isinstance(data['quantity_sold'], int) or data['quantity_sold'] <= 0:
-        logging.error("Invalid 'quantity_sold' provided for selling a product")
-        return jsonify({"msg": "Valid 'quantity_sold' is required"}), 400
-
     product = Product.query.get(product_id)
+    quantity_sold = product.quantity_sold
 
+    #if 'quantity_sold' not in data or not isinstance(data['quantity_sold'], int) or data['quantity_sold'] <= 0:
+    #    logging.error("Invalid 'quantity_sold' provided for selling a product")
+    #    return jsonify({"msg": "Valid 'quantity_sold' is required"}), 400
+
+    
     if not product:
         logging.error(f"Product with ID {product_id} does not exist")
         return jsonify({"msg": "Product does not exist"}), 404
@@ -165,17 +167,17 @@ def sell_product(product_id):
         logging.warning("You are not authorized to modify this gym")
         return jsonify({"msg": "You are not authorized to modify this gym"}), 403
     
-    if product.quantity_in_stock < data['quantity_sold']:
+    if product.quantity_in_stock < 1:
         logging.error(f"Not enough stock for Product {product_id}")
         return jsonify({"msg": "Not enough stock available"}), 400
 
     try:
-        product.quantity_in_stock -= data['quantity_sold']
-        product.quantity_sold += data['quantity_sold']
-        product.total_revenue += Decimal(data['quantity_sold']) * Decimal(product.price)
+        product.quantity_in_stock -= 1
+        product.quantity_sold += 1
+        product.total_revenue += Decimal(product.price)
 
         db.session.commit()
-        logging.info(f"Product {product_id} sold successfully. Quantity: {data['quantity_sold']}")
+        logging.info(f"Product {product_id} sold successfully. Quantity: {quantity_sold}")
         return jsonify({"msg": "Product sold successfully"}), 200
 
     except Exception as e:
